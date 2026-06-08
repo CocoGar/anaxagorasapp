@@ -7,6 +7,8 @@ import {
   getAnthropometricUnits
 } from '../core/anthropometricSystem';
 
+import { formatCentimeters } from '../utils/numberFormat';
+
 const anthropometricUnits = getAnthropometricUnits();
 </script>
 
@@ -27,15 +29,28 @@ const anthropometricUnits = getAnthropometricUnits();
         </p>
 
         <div class="home-view__actions">
-          <BaseButton>Empezar cálculo</BaseButton>
-          <BaseButton variant="secondary">Ver método</BaseButton>
+          <a href="#calculator">
+            <BaseButton>Empezar cálculo</BaseButton>
+          </a>
+
+          <a href="#method">
+            <BaseButton variant="secondary">Ver método</BaseButton>
+          </a>
         </div>
       </div>
 
       <BaseCard class="home-view__panel">
         <div class="measure-card">
           <p class="measure-card__eyebrow">Sistema antropométrico</p>
-          <h2>h = {{ DEFAULT_HUMAN_HEIGHT_CM }} cm</h2>
+
+          <h2>
+            h = {{ formatCentimeters(DEFAULT_HUMAN_HEIGHT_CM) }}
+          </h2>
+
+          <p class="measure-card__description">
+            Las unidades base se calculan desde una altura humana de referencia.
+            El sistema métrico se conserva como equivalencia técnica.
+          </p>
 
           <div class="measure-card__list">
             <div
@@ -43,7 +58,7 @@ const anthropometricUnits = getAnthropometricUnits();
               :key="unit.id"
             >
               <span>{{ unit.name }}</span>
-              <strong>{{ unit.valueCm }} cm</strong>
+              <strong>{{ formatCentimeters(unit.valueCm) }}</strong>
             </div>
           </div>
         </div>
@@ -85,11 +100,18 @@ const anthropometricUnits = getAnthropometricUnits();
 }
 
 .measure-card h2 {
-  margin: 0 0 28px;
+  margin: 0;
   color: var(--color-primary);
   font-size: clamp(2rem, 4vw, 3.8rem);
   line-height: 1;
   letter-spacing: -0.06em;
+}
+
+.measure-card__description {
+  margin: 18px 0 28px;
+  color: var(--color-muted);
+  font-size: 0.98rem;
+  line-height: 1.7;
 }
 
 .measure-card__list {

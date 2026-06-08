@@ -8,11 +8,18 @@ import BaseSelect from '../components/ui/BaseSelect.vue';
 
 import {
   DEFAULT_HUMAN_HEIGHT_CM,
-  getAnthropometricUnits
+  getAnthropometricUnits,
+  getAnthropometricUnitById
 } from '../core/anthropometricSystem';
 
 import { MUSICAL_RATIOS } from '../core/musicalRatios';
 import { calculateAnaxagorasProportion } from '../core/proportionCalculator';
+
+import {
+  formatCentimeters,
+  formatMeters,
+  formatSpanishNumber
+} from '../utils/numberFormat';
 
 const heightCm = ref(DEFAULT_HUMAN_HEIGHT_CM);
 const quantity = ref(10);
@@ -21,11 +28,26 @@ const musicalRatioId = ref('fifth');
 const calculationResult = ref(null);
 const errorMessage = ref('');
 
+const anthropometricUnits = computed(() =>
+  getAnthropometricUnits(Number(heightCm.value))
+);
+
 const anthropometricUnitOptions = computed(() =>
-  getAnthropometricUnits(Number(heightCm.value)).map((unit) => ({
+  anthropometricUnits.value.map((unit) => ({
     value: unit.id,
-    label: `${unit.name} · ${unit.valueCm} cm`
+    label: `${unit.name} · ${formatCentimeters(unit.valueCm)}`
   }))
+);
+
+const selectedAnthropometricUnit = computed(() =>
+  getAnthropometricUnitById(
+    anthropometricUnitId.value,
+    Number(heightCm.value)
+  )
+);
+
+const selectedMusicalRatio = computed(() =>
+  MUSICAL_RATIOS.find((ratio) => ratio.id === musicalRatioId.value)
 );
 
 const musicalRatioOptions = MUSICAL_RATIOS.map((ratio) => ({
@@ -65,17 +87,31 @@ function calculateResult() {
           y aplica una relación musical para obtener una medida proporcional útil
           para diseño.
         </p>
+
+        <div class="calculator-view__hint">
+          <span class="calculator-view__hint-mark">↳</span>
+          <p>
+            Ejemplo recomendado: 10 pies Anaxágoras con relación Do-Sol 3:2.
+            El resultado debe ser 414 cm, es decir, 4,14 m.
+          </p>
+        </div>
       </div>
 
       <BaseCard class="calculator-view__card">
         <form class="calculator-form" @submit.prevent="calculateResult">
-          <BaseInput
-            id="heightCm"
-            v-model="heightCm"
-            label="Altura humana base"
-            type="number"
-            placeholder="165.6"
-          />
+          <div class="calculator-form__group">
+            <BaseInput
+              id="heightCm"
+              v-model="heightCm"
+              label="Altura humana base"
+              type="number"
+              placeholder="165,6"
+            />
+
+            <p class="calculator-form__helper">
+              Por defecto usamos h = {{ formatCentimeters(DEFAULT_HUMAN_HEIGHT_CM) }}.
+            </p>
+          </div>
 
           <BaseInput
             id="quantity"
@@ -99,7 +135,26 @@ function calculateResult() {
             :options="musicalRatioOptions"
           />
 
-          <BaseButton>
+          <div class="live-summary">
+            <p class="live-summary__label">Lectura previa</p>
+
+            <p>
+              {{ formatSpanishNumber(quantity) }}
+              {{ selectedAnthropometricUnit.name.toLowerCase() }} equivale a
+              <strong>
+                {{ formatCentimeters(quantity * selectedAnthropometricUnit.valueCm) }}
+              </strong>.
+            </p>
+
+            <p v-if="selectedMusicalRatio">
+              Se aplicará la relación
+              <strong>
+                {{ selectedMusicalRatio.name }} · {{ selectedMusicalRatio.ratioLabel }}
+              </strong>.
+            </p>
+          </div>
+
+          <BaseButton type="submit">
             Calcular proporción
           </BaseButton>
 
@@ -112,17 +167,17 @@ function calculateResult() {
           <p class="result-panel__label">Resultado proporcional</p>
 
           <div class="result-panel__main">
-            {{ calculationResult.resultCm }} cm
+            {{ formatCentimeters(calculationResult.resultCm) }}
           </div>
 
           <div class="result-panel__secondary">
-            {{ calculationResult.resultMeters }} m
+            {{ formatMeters(calculationResult.resultMeters) }}
           </div>
 
           <dl class="result-panel__details">
             <div>
               <dt>Medida base</dt>
-              <dd>{{ calculationResult.baseMeasureCm }} cm</dd>
+              <dd>{{ formatCentimeters(calculationResult.baseMeasureCm) }}</dd>
             </div>
 
             <div>
@@ -136,8 +191,8 @@ function calculateResult() {
             <div>
               <dt>Lectura del cálculo</dt>
               <dd>
-                {{ calculationResult.quantity }} unidades humanas transformadas
-                mediante una proporción musical.
+                {{ formatSpanishNumber(calculationResult.quantity) }}
+                unidades humanas transformadas mediante una proporción musical.
               </dd>
             </div>
           </dl>
@@ -168,6 +223,31 @@ function calculateResult() {
   letter-spacing: -0.06em;
 }
 
+.calculator-view__hint {
+  display: flex;
+  gap: 12px;
+  max-width: 620px;
+  margin-top: 28px;
+  padding: 18px 20px;
+  border: 1px solid rgba(200, 155, 60, 0.28);
+  border-radius: var(--radius-md);
+  background: rgba(200, 155, 60, 0.08);
+}
+
+.calculator-view__hint-mark {
+  color: var(--color-accent);
+  font-size: 1.4rem;
+  font-weight: 900;
+}
+
+.calculator-view__hint p {
+  margin: 0;
+  color: var(--color-primary);
+  font-size: 0.98rem;
+  font-weight: 700;
+  line-height: 1.6;
+}
+
 .calculator-view__card {
   display: grid;
   gap: 28px;
@@ -179,6 +259,18 @@ function calculateResult() {
   gap: 18px;
 }
 
+.calculator-form__group {
+  display: grid;
+  gap: 8px;
+}
+
+.calculator-form__helper {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 0.86rem;
+  line-height: 1.5;
+}
+
 .calculator-form__error {
   margin: 0;
   padding: 14px 16px;
@@ -187,6 +279,34 @@ function calculateResult() {
   background: rgba(180, 55, 55, 0.08);
   color: #8f1f1f;
   font-weight: 700;
+}
+
+.live-summary {
+  display: grid;
+  gap: 8px;
+  padding: 18px;
+  border: 1px solid rgba(22, 56, 50, 0.12);
+  border-radius: var(--radius-md);
+  background: rgba(217, 231, 223, 0.45);
+}
+
+.live-summary__label {
+  margin: 0;
+  color: var(--color-accent);
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.live-summary p {
+  margin: 0;
+  color: var(--color-primary);
+  line-height: 1.6;
+}
+
+.live-summary strong {
+  font-weight: 900;
 }
 
 .result-panel {
