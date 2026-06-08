@@ -1,6 +1,8 @@
 <script setup>
 import { computed, ref, watch } from 'vue';
 
+import ProportionGrid from '../components/canvas/ProportionGrid.vue';
+
 import BaseButton from '../components/ui/BaseButton.vue';
 import BaseCard from '../components/ui/BaseCard.vue';
 import BaseInput from '../components/ui/BaseInput.vue';
@@ -261,6 +263,18 @@ function calculateResult() {
         </div>
       </BaseCard>
     </div>
+
+    <div
+      v-if="calculationResult"
+      class="page-container calculator-view__visual-section"
+    >
+      <ProportionGrid
+        :base-measure-cm="calculationResult.baseMeasureCm"
+        :result-measure-cm="calculationResult.resultCm"
+        :ratio-label="calculationResult.musicalRatio.ratioLabel"
+        :ratio-name="calculationResult.musicalRatio.name"
+      />
+    </div>
   </section>
 </template>
 
@@ -425,6 +439,10 @@ function calculateResult() {
   margin: 0;
   color: #ffffff;
   font-weight: 700;
+}
+
+.calculator-view__visual-section {
+  margin-top: 48px;
 }
 
 @media (max-width: 900px) {
