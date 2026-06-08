@@ -9,6 +9,10 @@ defineProps({
     type: String,
     default: 'button',
     validator: (value) => ['button', 'submit', 'reset'].includes(value)
+  },
+  disabled: {
+    type: Boolean,
+    default: false
   }
 });
 </script>
@@ -18,6 +22,7 @@ defineProps({
     class="base-button"
     :class="`base-button--${variant}`"
     :type="type"
+    :disabled="disabled"
   >
     <slot />
   </button>
@@ -39,10 +44,11 @@ defineProps({
     transform 0.2s ease,
     box-shadow 0.2s ease,
     background 0.2s ease,
-    border-color 0.2s ease;
+    border-color 0.2s ease,
+    opacity 0.2s ease;
 }
 
-.base-button:hover {
+.base-button:hover:not(:disabled) {
   transform: translateY(-1px);
 }
 
@@ -51,13 +57,18 @@ defineProps({
   outline-offset: 3px;
 }
 
+.base-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.48;
+}
+
 .base-button--primary {
   background: var(--color-primary);
   color: #ffffff;
   box-shadow: 0 12px 30px rgba(22, 56, 50, 0.22);
 }
 
-.base-button--primary:hover {
+.base-button--primary:hover:not(:disabled) {
   box-shadow: 0 16px 36px rgba(22, 56, 50, 0.28);
 }
 
@@ -67,7 +78,7 @@ defineProps({
   color: var(--color-primary);
 }
 
-.base-button--secondary:hover {
+.base-button--secondary:hover:not(:disabled) {
   border-color: rgba(22, 56, 50, 0.24);
   background: #ffffff;
 }
@@ -77,7 +88,7 @@ defineProps({
   color: var(--color-primary);
 }
 
-.base-button--ghost:hover {
+.base-button--ghost:hover:not(:disabled) {
   background: rgba(22, 56, 50, 0.06);
 }
 </style>

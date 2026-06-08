@@ -15,6 +15,14 @@ defineProps({
   options: {
     type: Array,
     required: true
+  },
+  helperText: {
+    type: String,
+    default: ''
+  },
+  errorMessage: {
+    type: String,
+    default: ''
   }
 });
 
@@ -28,7 +36,10 @@ defineEmits(['update:modelValue']);
     <select
       :id="id"
       class="base-select__control"
+      :class="{ 'base-select__control--error': errorMessage }"
       :value="modelValue"
+      :aria-invalid="Boolean(errorMessage)"
+      :aria-describedby="helperText || errorMessage ? `${id}-message` : null"
       @change="$emit('update:modelValue', $event.target.value)"
     >
       <option
@@ -39,6 +50,15 @@ defineEmits(['update:modelValue']);
         {{ option.label }}
       </option>
     </select>
+
+    <span
+      v-if="errorMessage || helperText"
+      :id="`${id}-message`"
+      class="base-select__message"
+      :class="{ 'base-select__message--error': errorMessage }"
+    >
+      {{ errorMessage || helperText }}
+    </span>
   </label>
 </template>
 
@@ -65,11 +85,33 @@ defineEmits(['update:modelValue']);
   outline: none;
   transition:
     border-color 0.2s ease,
-    box-shadow 0.2s ease;
+    box-shadow 0.2s ease,
+    background 0.2s ease;
 }
 
 .base-select__control:focus {
   border-color: var(--color-primary);
   box-shadow: 0 0 0 4px rgba(22, 56, 50, 0.12);
+}
+
+.base-select__control--error {
+  border-color: rgba(180, 55, 55, 0.72);
+  background: rgba(180, 55, 55, 0.04);
+}
+
+.base-select__control--error:focus {
+  border-color: rgba(180, 55, 55, 0.9);
+  box-shadow: 0 0 0 4px rgba(180, 55, 55, 0.12);
+}
+
+.base-select__message {
+  color: var(--color-muted);
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.base-select__message--error {
+  color: #8f1f1f;
+  font-weight: 700;
 }
 </style>

@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 import BaseButton from '../components/ui/BaseButton.vue';
 import BaseCard from '../components/ui/BaseCard.vue';
@@ -12,6 +12,12 @@ import {
   getAnthropometricUnitById
 } from '../core/anthropometricSystem';
 
+import {
+  hasValidationErrors,
+  normalizeCalculatorForm,
+  validateCalculatorForm
+} from '../core/calculatorValidator';
+
 import { MUSICAL_RATIOS } from '../core/musicalRatios';
 import { calculateAnaxagorasProportion } from '../core/proportionCalculator';
 
@@ -21,16 +27,40 @@ import {
   formatSpanishNumber
 } from '../utils/numberFormat';
 
-const heightCm = ref(DEFAULT_HUMAN_HEIGHT_CM);
-const quantity = ref(10);
+const heightCm = ref(String(DEFAULT_HUMAN_HEIGHT_CM).replace('.', ','));
+const quantity = ref('10');
 const anthropometricUnitId = ref('foot');
 const musicalRatioId = ref('fifth');
 const calculationResult = ref(null);
-const errorMessage = ref('');
+const formTouched = ref(false);
 
-const anthropometricUnits = computed(() =>
-  getAnthropometricUnits(Number(heightCm.value))
+const validationErrors = computed(() =>
+  validateCalculatorForm({
+    heightCm: heightCm.value,
+    quantity: quantity.value,
+    anthropometricUnitId: anthropometricUnitId.value,
+    musicalRatioId: musicalRatioId.value
+  })
 );
+
+const isFormValid = computed(() => !hasValidationErrors(validationErrors.value));
+
+const normalizedForm = computed(() =>
+  normalizeCalculatorForm({
+    heightCm: heightCm.value,
+    quantity: quantity.value,
+    anthropometricUnitId: anthropometricUnitId.value,
+    musicalRatioId: musicalRatioId.value
+  })
+);
+
+const anthropometricUnits = computed(() => {
+  if (!Number.isFinite(normalizedForm.value.heightCm) || normalizedForm.value.heightCm <= 0) {
+    return getAnthropometricUnits(DEFAULT_HUMAN_HEIGHT_CM);
+  }
+
+  return getAnthropometricUnits(normalizedForm.value.heightCm);
+});
 
 const anthropometricUnitOptions = computed(() =>
   anthropometricUnits.value.map((unit) => ({
@@ -39,12 +69,16 @@ const anthropometricUnitOptions = computed(() =>
   }))
 );
 
-const selectedAnthropometricUnit = computed(() =>
-  getAnthropometricUnitById(
+const selectedAnthropometricUnit = computed(() => {
+  const heightValue = Number.isFinite(normalizedForm.value.heightCm)
+    ? normalizedForm.value.heightCm
+    : DEFAULT_HUMAN_HEIGHT_CM;
+
+  return getAnthropometricUnitById(
     anthropometricUnitId.value,
-    Number(heightCm.value)
-  )
-);
+    heightValue
+  );
+});
 
 const selectedMusicalRatio = computed(() =>
   MUSICAL_RATIOS.find((ratio) => ratio.id === musicalRatioId.value)
@@ -55,20 +89,38 @@ const musicalRatioOptions = MUSICAL_RATIOS.map((ratio) => ({
   label: `${ratio.name} · ${ratio.ratioLabel}`
 }));
 
-function calculateResult() {
-  errorMessage.value = '';
-
-  try {
-    calculationResult.value = calculateAnaxagorasProportion({
-      quantity: quantity.value,
-      anthropometricUnitId: anthropometricUnitId.value,
-      musicalRatioId: musicalRatioId.value,
-      heightCm: Number(heightCm.value)
-    });
-  } catch (error) {
-    calculationResult.value = null;
-    errorMessage.value = error.message;
+const liveBaseMeasureCm = computed(() => {
+  if (!isFormValid.value) {
+    return null;
   }
+
+  return normalizedForm.value.quantity * selectedAnthropometricUnit.value.valueCm;
+});
+
+watch(
+  [heightCm, quantity, anthropometricUnitId, musicalRatioId],
+  () => {
+    calculationResult.value = null;
+  }
+);
+
+function getFieldError(fieldName) {
+  if (!formTouched.value) {
+    return '';
+  }
+
+  return validationErrors.value[fieldName] || '';
+}
+
+function calculateResult() {
+  formTouched.value = true;
+
+  if (!isFormValid.value) {
+    calculationResult.value = null;
+    return;
+  }
+
+  calculationResult.value = calculateAnaxagorasProportion(normalizedForm.value);
 }
 </script>
 
@@ -98,27 +150,27 @@ function calculateResult() {
       </div>
 
       <BaseCard class="calculator-view__card">
-        <form class="calculator-form" @submit.prevent="calculateResult">
-          <div class="calculator-form__group">
-            <BaseInput
-              id="heightCm"
-              v-model="heightCm"
-              label="Altura humana base"
-              type="number"
-              placeholder="165,6"
-            />
-
-            <p class="calculator-form__helper">
-              Por defecto usamos h = {{ formatCentimeters(DEFAULT_HUMAN_HEIGHT_CM) }}.
-            </p>
-          </div>
+        <form class="calculator-form" novalidate @submit.prevent="calculateResult">
+          <BaseInput
+            id="heightCm"
+            v-model="heightCm"
+            label="Altura humana base"
+            type="text"
+            input-mode="decimal"
+            placeholder="165,6"
+            helper-text="Puedes usar coma o punto decimal."
+            :error-message="getFieldError('heightCm')"
+          />
 
           <BaseInput
             id="quantity"
             v-model="quantity"
             label="Cantidad de unidades"
-            type="number"
+            type="text"
+            input-mode="decimal"
             placeholder="10"
+            helper-text="Ejemplo: 10 pies, 4 codos o 24 palmos."
+            :error-message="getFieldError('quantity')"
           />
 
           <BaseSelect
@@ -126,6 +178,8 @@ function calculateResult() {
             v-model="anthropometricUnitId"
             label="Unidad antropométrica"
             :options="anthropometricUnitOptions"
+            helper-text="La equivalencia se recalcula según la altura humana base."
+            :error-message="getFieldError('anthropometricUnitId')"
           />
 
           <BaseSelect
@@ -133,33 +187,41 @@ function calculateResult() {
             v-model="musicalRatioId"
             label="Proporción musical"
             :options="musicalRatioOptions"
+            helper-text="La relación Do-Sol 3:2 es una de las principales del método."
+            :error-message="getFieldError('musicalRatioId')"
           />
 
-          <div class="live-summary">
+          <div class="live-summary" :class="{ 'live-summary--disabled': !isFormValid }">
             <p class="live-summary__label">Lectura previa</p>
 
-            <p>
-              {{ formatSpanishNumber(quantity) }}
-              {{ selectedAnthropometricUnit.name.toLowerCase() }} equivale a
-              <strong>
-                {{ formatCentimeters(quantity * selectedAnthropometricUnit.valueCm) }}
-              </strong>.
-            </p>
+            <template v-if="isFormValid">
+              <p>
+                {{ formatSpanishNumber(normalizedForm.quantity) }}
+                {{ selectedAnthropometricUnit.name.toLowerCase() }} equivale a
+                <strong>
+                  {{ formatCentimeters(liveBaseMeasureCm) }}
+                </strong>.
+              </p>
 
-            <p v-if="selectedMusicalRatio">
-              Se aplicará la relación
-              <strong>
-                {{ selectedMusicalRatio.name }} · {{ selectedMusicalRatio.ratioLabel }}
-              </strong>.
+              <p v-if="selectedMusicalRatio">
+                Se aplicará la relación
+                <strong>
+                  {{ selectedMusicalRatio.name }} · {{ selectedMusicalRatio.ratioLabel }}
+                </strong>.
+              </p>
+            </template>
+
+            <p v-else>
+              Completa los datos correctamente para ver la lectura previa del cálculo.
             </p>
           </div>
 
-          <BaseButton type="submit">
+          <BaseButton type="submit" :disabled="!isFormValid">
             Calcular proporción
           </BaseButton>
 
-          <p v-if="errorMessage" class="calculator-form__error">
-            {{ errorMessage }}
+          <p v-if="formTouched && !isFormValid" class="calculator-form__error">
+            Revisa los campos marcados antes de calcular. Así evitamos resultados incorrectos.
           </p>
         </form>
 
@@ -259,18 +321,6 @@ function calculateResult() {
   gap: 18px;
 }
 
-.calculator-form__group {
-  display: grid;
-  gap: 8px;
-}
-
-.calculator-form__helper {
-  margin: 0;
-  color: var(--color-muted);
-  font-size: 0.86rem;
-  line-height: 1.5;
-}
-
 .calculator-form__error {
   margin: 0;
   padding: 14px 16px;
@@ -279,6 +329,7 @@ function calculateResult() {
   background: rgba(180, 55, 55, 0.08);
   color: #8f1f1f;
   font-weight: 700;
+  line-height: 1.5;
 }
 
 .live-summary {
@@ -288,6 +339,14 @@ function calculateResult() {
   border: 1px solid rgba(22, 56, 50, 0.12);
   border-radius: var(--radius-md);
   background: rgba(217, 231, 223, 0.45);
+  transition:
+    opacity 0.2s ease,
+    background 0.2s ease;
+}
+
+.live-summary--disabled {
+  opacity: 0.74;
+  background: rgba(255, 255, 255, 0.58);
 }
 
 .live-summary__label {

@@ -19,6 +19,18 @@ defineProps({
   placeholder: {
     type: String,
     default: ''
+  },
+  helperText: {
+    type: String,
+    default: ''
+  },
+  errorMessage: {
+    type: String,
+    default: ''
+  },
+  inputMode: {
+    type: String,
+    default: ''
   }
 });
 
@@ -32,11 +44,24 @@ defineEmits(['update:modelValue']);
     <input
       :id="id"
       class="base-input__control"
+      :class="{ 'base-input__control--error': errorMessage }"
       :type="type"
       :value="modelValue"
       :placeholder="placeholder"
+      :inputmode="inputMode || null"
+      :aria-invalid="Boolean(errorMessage)"
+      :aria-describedby="helperText || errorMessage ? `${id}-message` : null"
       @input="$emit('update:modelValue', $event.target.value)"
     />
+
+    <span
+      v-if="errorMessage || helperText"
+      :id="`${id}-message`"
+      class="base-input__message"
+      :class="{ 'base-input__message--error': errorMessage }"
+    >
+      {{ errorMessage || helperText }}
+    </span>
   </label>
 </template>
 
@@ -63,11 +88,33 @@ defineEmits(['update:modelValue']);
   outline: none;
   transition:
     border-color 0.2s ease,
-    box-shadow 0.2s ease;
+    box-shadow 0.2s ease,
+    background 0.2s ease;
 }
 
 .base-input__control:focus {
   border-color: var(--color-primary);
   box-shadow: 0 0 0 4px rgba(22, 56, 50, 0.12);
+}
+
+.base-input__control--error {
+  border-color: rgba(180, 55, 55, 0.72);
+  background: rgba(180, 55, 55, 0.04);
+}
+
+.base-input__control--error:focus {
+  border-color: rgba(180, 55, 55, 0.9);
+  box-shadow: 0 0 0 4px rgba(180, 55, 55, 0.12);
+}
+
+.base-input__message {
+  color: var(--color-muted);
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.base-input__message--error {
+  color: #8f1f1f;
+  font-weight: 700;
 }
 </style>

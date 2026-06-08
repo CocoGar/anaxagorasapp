@@ -32,15 +32,18 @@ export function roundToTwoDecimals(value) {
 }
 
 export function calculateAnthropometricUnit(heightCm, ratio) {
-  if (!Number.isFinite(heightCm) || heightCm <= 0) {
+  const numericHeight = Number(heightCm);
+  const numericRatio = Number(ratio);
+
+  if (!Number.isFinite(numericHeight) || numericHeight <= 0) {
     throw new Error('La altura humana debe ser un número mayor que cero.');
   }
 
-  if (!Number.isFinite(ratio) || ratio <= 0) {
+  if (!Number.isFinite(numericRatio) || numericRatio <= 0) {
     throw new Error('El ratio antropométrico debe ser un número mayor que cero.');
   }
 
-  return roundToTwoDecimals(heightCm * ratio);
+  return roundToTwoDecimals(numericHeight * numericRatio);
 }
 
 export function getAnthropometricUnits(heightCm = DEFAULT_HUMAN_HEIGHT_CM) {
