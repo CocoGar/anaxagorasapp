@@ -1,6 +1,13 @@
 <script setup>
 import BaseButton from '../components/ui/BaseButton.vue';
 import BaseCard from '../components/ui/BaseCard.vue';
+
+import {
+  DEFAULT_HUMAN_HEIGHT_CM,
+  getAnthropometricUnits
+} from '../core/anthropometricSystem';
+
+const anthropometricUnits = getAnthropometricUnits();
 </script>
 
 <template>
@@ -28,27 +35,15 @@ import BaseCard from '../components/ui/BaseCard.vue';
       <BaseCard class="home-view__panel">
         <div class="measure-card">
           <p class="measure-card__eyebrow">Sistema antropométrico</p>
-          <h2>h = 165,6 cm</h2>
+          <h2>h = {{ DEFAULT_HUMAN_HEIGHT_CM }} cm</h2>
 
           <div class="measure-card__list">
-            <div>
-              <span>Pulgada</span>
-              <strong>2,3 cm</strong>
-            </div>
-
-            <div>
-              <span>Palmo</span>
-              <strong>6,9 cm</strong>
-            </div>
-
-            <div>
-              <span>Pie</span>
-              <strong>27,6 cm</strong>
-            </div>
-
-            <div>
-              <span>Codo</span>
-              <strong>41,4 cm</strong>
+            <div
+              v-for="unit in anthropometricUnits"
+              :key="unit.id"
+            >
+              <span>{{ unit.name }}</span>
+              <strong>{{ unit.valueCm }} cm</strong>
             </div>
           </div>
         </div>
