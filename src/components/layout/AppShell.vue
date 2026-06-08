@@ -1,6 +1,7 @@
 <script setup>
 import AppHeader from './AppHeader.vue';
 import HomeView from '../../views/HomeView.vue';
+import CalculatorView from '../../views/CalculatorView.vue';
 </script>
 
 <template>
@@ -9,6 +10,7 @@ import HomeView from '../../views/HomeView.vue';
 
     <main>
       <HomeView />
+      <CalculatorView />
     </main>
   </div>
 </template>
