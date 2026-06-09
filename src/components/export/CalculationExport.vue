@@ -1,26 +1,26 @@
 <script setup>
-import { ref } from 'vue'
-import { exportCalculationAsText } from '../../services/calculationExportService.js'
+import { ref } from 'vue';
+import { exportCalculationAsText } from '../../services/calculationExportService.js';
 
 const props = defineProps({
   calculation: {
     type: Object,
     default: null
   }
-})
+});
 
-const exportStatus = ref('')
-const exportError = ref('')
+const exportStatus = ref('');
+const exportError = ref('');
 
-const handleExport = () => {
-  exportStatus.value = ''
-  exportError.value = ''
+function handleExport() {
+  exportStatus.value = '';
+  exportError.value = '';
 
   try {
-    exportCalculationAsText(props.calculation)
-    exportStatus.value = 'Resultado exportado correctamente.'
+    exportCalculationAsText(props.calculation);
+    exportStatus.value = 'Resultado exportado correctamente.';
   } catch (error) {
-    exportError.value = error.message
+    exportError.value = error.message;
   }
 }
 </script>
@@ -29,10 +29,15 @@ const handleExport = () => {
   <section class="calculation-export">
     <div class="calculation-export__content">
       <div>
-        <h2 class="calculation-export__title">Exportar resultado</h2>
+        <p class="calculation-export__label">Exportación</p>
+
+        <h3 class="calculation-export__title">
+          Descargar resultado
+        </h3>
 
         <p class="calculation-export__description">
-          Descarga el cálculo actual en un archivo de texto para conservarlo o compartirlo.
+          Genera un archivo TXT con la plantilla, la unidad humana, la relación musical
+          y el resultado proporcional calculado.
         </p>
       </div>
 
@@ -64,69 +69,83 @@ const handleExport = () => {
 
 <style scoped>
 .calculation-export {
-  padding: 1.5rem;
-  border: 1px solid var(--color-border, #d8e2ec);
-  border-radius: 1.25rem;
-  background-color: var(--color-surface, #ffffff);
-  box-shadow: 0 12px 32px rgb(0 16 33 / 8%);
+  display: grid;
+  gap: 14px;
+  padding: 20px;
+  border: 1px solid rgba(22, 56, 50, 0.12);
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.72);
 }
 
 .calculation-export__content {
   display: flex;
-  gap: 1rem;
+  gap: 18px;
   align-items: center;
   justify-content: space-between;
 }
 
+.calculation-export__label {
+  margin: 0 0 8px;
+  color: var(--color-accent);
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
 .calculation-export__title {
-  margin: 0 0 0.4rem;
-  color: var(--color-text-main, #001021);
-  font-size: 1.2rem;
+  margin: 0;
+  color: var(--color-primary);
+  font-size: 1.3rem;
+  letter-spacing: -0.04em;
 }
 
 .calculation-export__description {
-  max-width: 42rem;
-  margin: 0;
-  color: var(--color-text-secondary, #506070);
-  line-height: 1.5;
+  max-width: 560px;
+  margin: 8px 0 0;
+  color: var(--color-muted);
+  line-height: 1.6;
 }
 
 .calculation-export__button {
-  min-width: 9.5rem;
-  padding: 0.85rem 1.2rem;
+  flex: 0 0 auto;
+  padding: 0.9rem 1.15rem;
   border: 0;
   border-radius: 999px;
-  background-color: var(--color-primary, #026fc1);
+  background: var(--color-primary);
   color: #ffffff;
-  font-weight: 700;
+  font-weight: 900;
   cursor: pointer;
   transition:
+    opacity 0.2s ease,
     transform 0.2s ease,
-    box-shadow 0.2s ease,
-    background-color 0.2s ease;
+    box-shadow 0.2s ease;
 }
 
 .calculation-export__button:hover:not(:disabled) {
   transform: translateY(-1px);
-  background-color: var(--color-primary-light, #028cf5);
-  box-shadow: 0 10px 24px rgb(2 111 193 / 25%);
+  box-shadow: 0 12px 28px rgba(22, 56, 50, 0.18);
 }
 
 .calculation-export__button:disabled {
   cursor: not-allowed;
-  opacity: 0.5;
+  opacity: 0.48;
+}
+
+.calculation-export__status,
+.calculation-export__error {
+  margin: 0;
+  font-size: 0.92rem;
+  font-weight: 800;
+  line-height: 1.5;
 }
 
 .calculation-export__status {
-  margin: 1rem 0 0;
   color: #167a3f;
-  font-weight: 600;
 }
 
 .calculation-export__error {
-  margin: 1rem 0 0;
-  color: #b42318;
-  font-weight: 600;
+  color: #8f1f1f;
 }
 
 @media (max-width: 720px) {

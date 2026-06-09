@@ -15,15 +15,56 @@ defineProps({
   }
 });
 
-const emit = defineEmits(['clear-history']);
+const emit = defineEmits(['clear-history', 'history-updated']);
 
 function formatHistoryDate(dateValue) {
+  if (!dateValue) {
+    return 'Sin fecha';
+  }
+
   return new Intl.DateTimeFormat('es-ES', {
     day: '2-digit',
     month: '2-digit',
     hour: '2-digit',
     minute: '2-digit'
   }).format(new Date(dateValue));
+}
+
+function getTemplateShortName(item) {
+  return item?.designTemplate?.shortName || item?.templateName || 'Diseño';
+}
+
+function getTemplateName(item) {
+  return item?.designTemplate?.name || item?.templateName || 'Plantilla proporcional';
+}
+
+function getRatioLabel(item) {
+  return item?.musicalRatio?.ratioLabel || item?.ratioLabel || 'Proporción';
+}
+
+function getRatioName(item) {
+  return item?.musicalRatio?.name || item?.ratioName || 'Relación proporcional';
+}
+
+function getResultCm(item) {
+  return item?.resultCm || item?.baseHeight || item?.baseMeasureCm || 0;
+}
+
+function getResultMeters(item) {
+  return item?.resultMeters || getResultCm(item) / 100;
+}
+
+function getBaseMeasureCm(item) {
+  return item?.baseMeasureCm || item?.baseHeight || 0;
+}
+
+function getQuantity(item) {
+  return item?.quantity || 1;
+}
+
+function handleClearHistory() {
+  emit('clear-history');
+  emit('history-updated');
 }
 </script>
 
@@ -39,13 +80,16 @@ function formatHistoryDate(dateValue) {
         v-if="historyItems.length"
         variant="ghost"
         type="button"
-        @click="emit('clear-history')"
+        @click="handleClearHistory"
       >
         Limpiar
       </BaseButton>
     </div>
 
-    <div v-if="historyItems.length" class="calculation-history__list">
+    <div
+      v-if="historyItems.length"
+      class="calculation-history__list"
+    >
       <article
         v-for="item in historyItems"
         :key="item.id"
@@ -53,41 +97,44 @@ function formatHistoryDate(dateValue) {
       >
         <div class="history-item__top">
           <BaseBadge tone="primary">
-            {{ item.designTemplate.shortName }}
+            {{ getTemplateShortName(item) }}
           </BaseBadge>
 
           <span>{{ formatHistoryDate(item.createdAt) }}</span>
         </div>
 
         <div class="history-item__main">
-          <strong>{{ formatCentimeters(item.resultCm) }}</strong>
-          <span>{{ formatMeters(item.resultMeters) }}</span>
+          <strong>{{ formatCentimeters(getResultCm(item)) }}</strong>
+          <span>{{ formatMeters(getResultMeters(item)) }}</span>
         </div>
 
         <dl class="history-item__details">
           <div>
             <dt>Base</dt>
-            <dd>{{ formatCentimeters(item.baseMeasureCm) }}</dd>
+            <dd>{{ formatCentimeters(getBaseMeasureCm(item)) }}</dd>
           </div>
 
           <div>
             <dt>Unidades</dt>
-            <dd>{{ formatSpanishNumber(item.quantity) }}</dd>
+            <dd>{{ formatSpanishNumber(getQuantity(item)) }}</dd>
           </div>
 
           <div>
             <dt>Relación</dt>
-            <dd>{{ item.musicalRatio.ratioLabel }}</dd>
+            <dd>{{ getRatioLabel(item) }}</dd>
           </div>
         </dl>
 
         <p class="history-item__description">
-          {{ item.designTemplate.name }} · {{ item.musicalRatio.name }}
+          {{ getTemplateName(item) }} · {{ getRatioName(item) }}
         </p>
       </article>
     </div>
 
-    <div v-else class="calculation-history__empty">
+    <div
+      v-else
+      class="calculation-history__empty"
+    >
       <p>
         Todavía no hay cálculos guardados. Cuando calcules una proporción,
         aparecerá aquí para que puedas comparar resultados.

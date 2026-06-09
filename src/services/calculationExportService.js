@@ -1,21 +1,35 @@
-const DEFAULT_FILE_NAME = 'anaxagoras-calculo.txt'
+const DEFAULT_FILE_NAME = 'anaxagoras-calculo.txt';
 
-const formatSpanishDate = (date) => {
+function formatSpanishDate(date) {
   return new Intl.DateTimeFormat('es-ES', {
     dateStyle: 'medium',
     timeStyle: 'short'
-  }).format(date)
+  }).format(date);
 }
 
-const formatNumber = (value) => {
+function formatNumber(value) {
+  const numericValue = Number(value);
+
+  if (!Number.isFinite(numericValue)) {
+    return '0';
+  }
+
   return new Intl.NumberFormat('es-ES', {
-    minimumFractionDigits: 2,
+    minimumFractionDigits: 0,
     maximumFractionDigits: 2
-  }).format(value)
+  }).format(numericValue);
 }
 
-const buildExportContent = (calculation) => {
-  const exportDate = formatSpanishDate(new Date())
+function getSafeText(value, fallbackText = 'No especificado') {
+  return value || fallbackText;
+}
+
+function buildExportContent(calculation) {
+  const exportDate = formatSpanishDate(new Date());
+  const designTemplateName = getSafeText(calculation?.designTemplate?.name, calculation?.templateName);
+  const anthropometricUnitName = getSafeText(calculation?.anthropometricUnit?.name, calculation?.anthropometricUnitId);
+  const musicalRatioName = getSafeText(calculation?.musicalRatio?.name, calculation?.ratioName);
+  const musicalRatioLabel = getSafeText(calculation?.musicalRatio?.ratioLabel, calculation?.ratioLabel);
 
   return `
 ANAXÁGORAS
@@ -28,76 +42,70 @@ ${exportDate}
 DATOS DE PARTIDA
 ----------------------------------------
 
-Altura base:
-${formatNumber(calculation.baseHeight)} cm
+Plantilla de diseño:
+${designTemplateName}
 
-Plantilla seleccionada:
-${calculation.templateName}
+Altura humana base:
+${formatNumber(calculation.heightCm)} cm
 
-----------------------------------------
-SISTEMA ANTROPOMÉTRICO
-----------------------------------------
+Cantidad de unidades:
+${formatNumber(calculation.quantity)}
 
-Pulgada:
-${formatNumber(calculation.anthropometricSystem.inch)} cm
+Unidad antropométrica:
+${anthropometricUnitName}
 
-Palmo:
-${formatNumber(calculation.anthropometricSystem.span)} cm
-
-Pie:
-${formatNumber(calculation.anthropometricSystem.foot)} cm
-
-Codo:
-${formatNumber(calculation.anthropometricSystem.cubit)} cm
+Medida base:
+${formatNumber(calculation.baseMeasureCm)} cm
 
 ----------------------------------------
-RELACIONES PROPORCIONALES
+RELACIÓN APLICADA
 ----------------------------------------
 
-Relación 3:2:
-${formatNumber(calculation.musicalRatios.ratioThreeTwo)} cm
+Proporción musical:
+${musicalRatioName} · ${musicalRatioLabel}
 
-Relación 4:3:
-${formatNumber(calculation.musicalRatios.ratioFourThree)} cm
+Resultado proporcional:
+${formatNumber(calculation.resultCm)} cm
+${formatNumber(calculation.resultMeters)} m
 
-Relación 5:4:
-${formatNumber(calculation.musicalRatios.ratioFiveFour)} cm
+----------------------------------------
+LECTURA
+----------------------------------------
 
-Relación 2:1:
-${formatNumber(calculation.musicalRatios.ratioTwoOne)} cm
+${formatNumber(calculation.quantity)} unidades humanas transformadas mediante la proporción ${musicalRatioLabel}, dentro del contexto ${designTemplateName}.
 
 ----------------------------------------
 NOTA
 ----------------------------------------
 
 Este documento ha sido generado desde Anaxágoras como apoyo al diseño proporcional basado en escala humana, geometría, música y armonía visual.
-`.trim()
+`.trim();
 }
 
-const createTextFile = (content) => {
+function createTextFile(content) {
   return new Blob([content], {
     type: 'text/plain;charset=utf-8'
-  })
+  });
 }
 
-const downloadFile = (blob, fileName) => {
-  const url = URL.createObjectURL(blob)
-  const temporaryLink = document.createElement('a')
+function downloadFile(blob, fileName) {
+  const url = URL.createObjectURL(blob);
+  const temporaryLink = document.createElement('a');
 
-  temporaryLink.href = url
-  temporaryLink.download = fileName
-  temporaryLink.click()
+  temporaryLink.href = url;
+  temporaryLink.download = fileName;
+  temporaryLink.click();
 
-  URL.revokeObjectURL(url)
+  URL.revokeObjectURL(url);
 }
 
-export const exportCalculationAsText = (calculation, fileName = DEFAULT_FILE_NAME) => {
+export function exportCalculationAsText(calculation, fileName = DEFAULT_FILE_NAME) {
   if (!calculation) {
-    throw new Error('No hay ningún cálculo disponible para exportar.')
+    throw new Error('No hay ningún cálculo disponible para exportar.');
   }
 
-  const content = buildExportContent(calculation)
-  const file = createTextFile(content)
+  const content = buildExportContent(calculation);
+  const file = createTextFile(content);
 
-  downloadFile(file, fileName)
+  downloadFile(file, fileName);
 }
