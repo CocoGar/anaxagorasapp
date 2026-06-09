@@ -155,12 +155,10 @@ function calculateResult() {
     return;
   }
 
-  const result = {
-    ...calculateAnaxagorasProportion(normalizedForm.value),
-    heightCm: normalizedForm.value.heightCm,
-    anthropometricUnit: selectedAnthropometricUnit.value,
-    designTemplate: selectedDesignTemplate.value
-  };
+  const result = calculateAnaxagorasProportion({
+    ...normalizedForm.value,
+    designTemplateId: designTemplateId.value
+  });
 
   calculationResult.value = result;
   calculationHistory.value = saveCalculationToHistory(result);
