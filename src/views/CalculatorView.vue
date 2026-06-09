@@ -3,6 +3,7 @@ import { computed, ref, watch } from 'vue';
 
 import ProportionGrid from '../components/canvas/ProportionGrid.vue';
 
+import BaseBadge from '../components/ui/BaseBadge.vue';
 import BaseButton from '../components/ui/BaseButton.vue';
 import BaseCard from '../components/ui/BaseCard.vue';
 import BaseInput from '../components/ui/BaseInput.vue';
@@ -24,6 +25,11 @@ import { MUSICAL_RATIOS } from '../core/musicalRatios';
 import { calculateAnaxagorasProportion } from '../core/proportionCalculator';
 
 import {
+  DESIGN_TEMPLATES,
+  getDesignTemplateById
+} from '../data/designTemplates';
+
+import {
   formatCentimeters,
   formatMeters,
   formatSpanishNumber
@@ -31,6 +37,7 @@ import {
 
 const heightCm = ref(String(DEFAULT_HUMAN_HEIGHT_CM).replace('.', ','));
 const quantity = ref('10');
+const designTemplateId = ref('free-composition');
 const anthropometricUnitId = ref('foot');
 const musicalRatioId = ref('fifth');
 const calculationResult = ref(null);
@@ -55,6 +62,15 @@ const normalizedForm = computed(() =>
     musicalRatioId: musicalRatioId.value
   })
 );
+
+const selectedDesignTemplate = computed(() =>
+  getDesignTemplateById(designTemplateId.value)
+);
+
+const designTemplateOptions = DESIGN_TEMPLATES.map((template) => ({
+  value: template.id,
+  label: template.name
+}));
 
 const anthropometricUnits = computed(() => {
   if (!Number.isFinite(normalizedForm.value.heightCm) || normalizedForm.value.heightCm <= 0) {
@@ -100,7 +116,7 @@ const liveBaseMeasureCm = computed(() => {
 });
 
 watch(
-  [heightCm, quantity, anthropometricUnitId, musicalRatioId],
+  [heightCm, quantity, anthropometricUnitId, musicalRatioId, designTemplateId],
   () => {
     calculationResult.value = null;
   }
@@ -114,6 +130,14 @@ function getFieldError(fieldName) {
   return validationErrors.value[fieldName] || '';
 }
 
+function applyTemplateRecommendations() {
+  const template = selectedDesignTemplate.value;
+
+  anthropometricUnitId.value = template.recommendedUnitId;
+  musicalRatioId.value = template.recommendedRatioId;
+  calculationResult.value = null;
+}
+
 function calculateResult() {
   formTouched.value = true;
 
@@ -122,7 +146,10 @@ function calculateResult() {
     return;
   }
 
-  calculationResult.value = calculateAnaxagorasProportion(normalizedForm.value);
+  calculationResult.value = {
+    ...calculateAnaxagorasProportion(normalizedForm.value),
+    designTemplate: selectedDesignTemplate.value
+  };
 }
 </script>
 
@@ -149,10 +176,38 @@ function calculateResult() {
             El resultado debe ser 414 cm, es decir, 4,14 m.
           </p>
         </div>
+
+        <div class="template-info">
+          <BaseBadge tone="accent">
+            {{ selectedDesignTemplate.shortName }}
+          </BaseBadge>
+
+          <h3>{{ selectedDesignTemplate.name }}</h3>
+
+          <p>
+            {{ selectedDesignTemplate.description }}
+          </p>
+        </div>
       </div>
 
       <BaseCard class="calculator-view__card">
         <form class="calculator-form" novalidate @submit.prevent="calculateResult">
+          <BaseSelect
+            id="designTemplateId"
+            v-model="designTemplateId"
+            label="Plantilla de diseño"
+            :options="designTemplateOptions"
+            helper-text="Elige el contexto de aplicación del cálculo."
+          />
+
+          <BaseButton
+            type="button"
+            variant="secondary"
+            @click="applyTemplateRecommendations"
+          >
+            Aplicar recomendación de plantilla
+          </BaseButton>
+
           <BaseInput
             id="heightCm"
             v-model="heightCm"
@@ -198,6 +253,8 @@ function calculateResult() {
 
             <template v-if="isFormValid">
               <p>
+                En la plantilla
+                <strong>{{ selectedDesignTemplate.name.toLowerCase() }}</strong>,
                 {{ formatSpanishNumber(normalizedForm.quantity) }}
                 {{ selectedAnthropometricUnit.name.toLowerCase() }} equivale a
                 <strong>
@@ -228,7 +285,13 @@ function calculateResult() {
         </form>
 
         <div v-if="calculationResult" class="result-panel">
-          <p class="result-panel__label">Resultado proporcional</p>
+          <div class="result-panel__top">
+            <p class="result-panel__label">Resultado proporcional</p>
+
+            <BaseBadge tone="accent">
+              {{ calculationResult.designTemplate.shortName }}
+            </BaseBadge>
+          </div>
 
           <div class="result-panel__main">
             {{ formatCentimeters(calculationResult.resultCm) }}
@@ -253,6 +316,11 @@ function calculateResult() {
             </div>
 
             <div>
+              <dt>Contexto de diseño</dt>
+              <dd>{{ calculationResult.designTemplate.name }}</dd>
+            </div>
+
+            <div>
               <dt>Lectura del cálculo</dt>
               <dd>
                 {{ formatSpanishNumber(calculationResult.quantity) }}
@@ -272,7 +340,7 @@ function calculateResult() {
         :base-measure-cm="calculationResult.baseMeasureCm"
         :result-measure-cm="calculationResult.resultCm"
         :ratio-label="calculationResult.musicalRatio.ratioLabel"
-        :ratio-name="calculationResult.musicalRatio.name"
+        :ratio-name="`${calculationResult.designTemplate.name} · ${calculationResult.musicalRatio.name}`"
       />
     </div>
   </section>
@@ -322,6 +390,32 @@ function calculateResult() {
   font-size: 0.98rem;
   font-weight: 700;
   line-height: 1.6;
+}
+
+.template-info {
+  display: grid;
+  gap: 12px;
+  max-width: 620px;
+  margin-top: 28px;
+  padding: 22px;
+  border: 1px solid rgba(22, 56, 50, 0.1);
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.58);
+  box-shadow: var(--shadow-card);
+  backdrop-filter: blur(18px);
+}
+
+.template-info h3 {
+  margin: 0;
+  color: var(--color-primary);
+  font-size: 1.45rem;
+  letter-spacing: -0.04em;
+}
+
+.template-info p {
+  margin: 0;
+  color: var(--color-muted);
+  line-height: 1.7;
 }
 
 .calculator-view__card {
@@ -391,6 +485,13 @@ function calculateResult() {
     radial-gradient(circle at top right, rgba(200, 155, 60, 0.22), transparent 18rem),
     var(--color-primary);
   color: #ffffff;
+}
+
+.result-panel__top {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .result-panel__label {
