@@ -22,11 +22,19 @@ const props = defineProps({
   ratioName: {
     type: String,
     required: true
+  },
+  templateId: {
+    type: String,
+    default: 'free-composition'
+  },
+  templateName: {
+    type: String,
+    default: 'Composición libre'
   }
 });
 
 const svgWidth = 720;
-const svgHeight = 320;
+const svgHeight = 360;
 const leftPadding = 64;
 const rightPadding = 48;
 const topPadding = 64;
@@ -56,6 +64,26 @@ const visualRatio = computed(() =>
   Number((props.resultMeasureCm / props.baseMeasureCm).toFixed(2))
 );
 
+const facadeWidth = computed(() => resultLineWidth.value);
+const facadeHeight = computed(() => Math.max(120, baseLineWidth.value * 0.36));
+const facadeX = computed(() => leftPadding);
+const facadeY = computed(() => 112);
+
+const roomWidth = computed(() => resultLineWidth.value);
+const roomHeight = computed(() => Math.max(120, baseLineWidth.value * 0.46));
+const roomX = computed(() => leftPadding);
+const roomY = computed(() => 96);
+
+const furnitureWidth = computed(() => resultLineWidth.value);
+const furnitureHeight = computed(() => Math.max(76, baseLineWidth.value * 0.25));
+const furnitureX = computed(() => leftPadding);
+const furnitureY = computed(() => 140);
+
+const graphicWidth = computed(() => Math.min(resultLineWidth.value, 420));
+const graphicHeight = computed(() => Math.max(180, graphicWidth.value * 1.25));
+const graphicX = computed(() => leftPadding + 80);
+const graphicY = computed(() => 56);
+
 function calculateLineWidth(measureCm) {
   if (!maxMeasure.value || maxMeasure.value <= 0) {
     return 0;
@@ -70,7 +98,7 @@ function calculateLineWidth(measureCm) {
     <div class="proportion-grid__header">
       <div>
         <p class="proportion-grid__label">Retícula proporcional</p>
-        <h3>Lectura visual del cálculo</h3>
+        <h3>{{ templateName }}</h3>
       </div>
 
       <div class="proportion-grid__ratio">
@@ -81,9 +109,9 @@ function calculateLineWidth(measureCm) {
     <div class="proportion-grid__canvas">
       <svg
         class="proportion-grid__svg"
-        viewBox="0 0 720 320"
+        viewBox="0 0 720 360"
         role="img"
-        aria-label="Comparación visual entre medida base y medida proporcional"
+        aria-label="Representación visual proporcional según plantilla de diseño"
       >
         <defs>
           <pattern
@@ -118,136 +146,415 @@ function calculateLineWidth(measureCm) {
 
         <rect
           width="720"
-          height="320"
+          height="360"
           rx="24"
           fill="url(#largeGrid)"
         />
 
-        <line
-          :x1="leftPadding"
-          :y1="topPadding"
-          :x2="leftPadding"
-          :y2="topPadding + rowHeight + 80"
-          stroke="rgba(22, 56, 50, 0.32)"
-          stroke-width="2"
-          stroke-dasharray="6 8"
-        />
-
-        <text
-          :x="leftPadding"
-          :y="topPadding - 24"
-          class="proportion-grid__svg-note"
-        >
-          origen común
-        </text>
-
-        <g>
+        <template v-if="templateId === 'facade'">
           <text
-            :x="leftPadding"
-            :y="topPadding + 6"
-            class="proportion-grid__svg-title"
+            :x="facadeX"
+            y="52"
+            class="proportion-grid__svg-summary"
           >
-            Medida base
+            Fachada · ejes y ritmo compositivo
           </text>
 
           <line
-            :x1="leftPadding"
-            :y1="topPadding + 34"
-            :x2="baseEndX"
-            :y2="topPadding + 34"
-            stroke="rgba(22, 56, 50, 0.92)"
-            stroke-width="10"
-            stroke-linecap="round"
+            :x1="facadeX"
+            :y1="facadeY + facadeHeight"
+            :x2="facadeX + facadeWidth"
+            :y2="facadeY + facadeHeight"
+            stroke="rgba(22, 56, 50, 0.42)"
+            stroke-width="3"
           />
 
-          <circle
-            :cx="baseEndX"
-            :cy="topPadding + 34"
-            r="8"
-            fill="#163832"
+          <rect
+            :x="facadeX"
+            :y="facadeY"
+            :width="facadeWidth"
+            :height="facadeHeight"
+            rx="8"
+            fill="rgba(255, 255, 255, 0.62)"
+            stroke="rgba(22, 56, 50, 0.88)"
+            stroke-width="3"
           />
-
-          <text
-            :x="baseEndX"
-            :y="topPadding + 64"
-            text-anchor="end"
-            class="proportion-grid__svg-value"
-          >
-            {{ formatCentimeters(baseMeasureCm) }}
-          </text>
-        </g>
-
-        <g>
-          <text
-            :x="leftPadding"
-            :y="topPadding + rowHeight + 6"
-            class="proportion-grid__svg-title"
-          >
-            Medida proporcional
-          </text>
 
           <line
-            :x1="leftPadding"
-            :y1="topPadding + rowHeight + 34"
-            :x2="resultEndX"
-            :y2="topPadding + rowHeight + 34"
-            stroke="rgba(200, 155, 60, 0.96)"
-            stroke-width="10"
-            stroke-linecap="round"
+            :x1="facadeX + facadeWidth / 2"
+            :y1="facadeY - 28"
+            :x2="facadeX + facadeWidth / 2"
+            :y2="facadeY + facadeHeight + 24"
+            stroke="rgba(200, 155, 60, 0.84)"
+            stroke-width="2"
+            stroke-dasharray="8 8"
           />
 
-          <circle
-            :cx="resultEndX"
-            :cy="topPadding + rowHeight + 34"
-            r="8"
-            fill="#c89b3c"
+          <rect
+            :x="facadeX + facadeWidth * 0.16"
+            :y="facadeY + facadeHeight * 0.26"
+            :width="facadeWidth * 0.16"
+            :height="facadeHeight * 0.34"
+            rx="4"
+            fill="rgba(200, 155, 60, 0.2)"
+            stroke="rgba(200, 155, 60, 0.82)"
+            stroke-width="2"
+          />
+
+          <rect
+            :x="facadeX + facadeWidth * 0.42"
+            :y="facadeY + facadeHeight * 0.2"
+            :width="facadeWidth * 0.16"
+            :height="facadeHeight * 0.58"
+            rx="4"
+            fill="rgba(22, 56, 50, 0.12)"
+            stroke="rgba(22, 56, 50, 0.58)"
+            stroke-width="2"
+          />
+
+          <rect
+            :x="facadeX + facadeWidth * 0.68"
+            :y="facadeY + facadeHeight * 0.26"
+            :width="facadeWidth * 0.16"
+            :height="facadeHeight * 0.34"
+            rx="4"
+            fill="rgba(200, 155, 60, 0.2)"
+            stroke="rgba(200, 155, 60, 0.82)"
+            stroke-width="2"
           />
 
           <text
-            :x="resultEndX"
-            :y="topPadding + rowHeight + 64"
+            :x="facadeX + facadeWidth"
+            :y="facadeY + facadeHeight + 34"
             text-anchor="end"
             class="proportion-grid__svg-value"
           >
-            {{ formatCentimeters(resultMeasureCm) }}
+            ancho proporcional · {{ formatCentimeters(resultMeasureCm) }}
           </text>
-        </g>
+        </template>
 
-        <line
-          :x1="baseEndX"
-          :y1="topPadding + 34"
-          :x2="baseEndX"
-          :y2="topPadding + rowHeight + 34"
-          stroke="rgba(22, 56, 50, 0.18)"
-          stroke-width="2"
-          stroke-dasharray="4 8"
-        />
+        <template v-else-if="templateId === 'room'">
+          <text
+            :x="roomX"
+            y="52"
+            class="proportion-grid__svg-summary"
+          >
+            Estancia · planta proporcional
+          </text>
 
-        <line
-          :x1="resultEndX"
-          :y1="topPadding + rowHeight + 34"
-          :x2="resultEndX"
-          :y2="topPadding + rowHeight + 92"
-          stroke="rgba(200, 155, 60, 0.42)"
-          stroke-width="2"
-          stroke-dasharray="4 8"
-        />
+          <rect
+            :x="roomX"
+            :y="roomY"
+            :width="roomWidth"
+            :height="roomHeight"
+            rx="10"
+            fill="rgba(255, 255, 255, 0.62)"
+            stroke="rgba(22, 56, 50, 0.88)"
+            stroke-width="3"
+          />
 
-        <text
-          :x="leftPadding"
-          y="252"
-          class="proportion-grid__svg-summary"
-        >
-          {{ ratioName }} · {{ ratioLabel }}
-        </text>
+          <line
+            :x1="roomX + roomWidth * 0.5"
+            :y1="roomY"
+            :x2="roomX + roomWidth * 0.5"
+            :y2="roomY + roomHeight"
+            stroke="rgba(200, 155, 60, 0.64)"
+            stroke-width="2"
+            stroke-dasharray="8 8"
+          />
 
-        <text
-          :x="leftPadding"
-          y="282"
-          class="proportion-grid__svg-note"
-        >
-          La medida proporcional se genera aplicando la relación musical sobre la unidad humana seleccionada.
-        </text>
+          <line
+            :x1="roomX"
+            :y1="roomY + roomHeight * 0.5"
+            :x2="roomX + roomWidth"
+            :y2="roomY + roomHeight * 0.5"
+            stroke="rgba(200, 155, 60, 0.64)"
+            stroke-width="2"
+            stroke-dasharray="8 8"
+          />
+
+          <rect
+            :x="roomX + roomWidth * 0.08"
+            :y="roomY + roomHeight * 0.12"
+            :width="roomWidth * 0.28"
+            :height="roomHeight * 0.28"
+            rx="6"
+            fill="rgba(22, 56, 50, 0.1)"
+            stroke="rgba(22, 56, 50, 0.42)"
+            stroke-width="2"
+          />
+
+          <rect
+            :x="roomX + roomWidth * 0.58"
+            :y="roomY + roomHeight * 0.58"
+            :width="roomWidth * 0.28"
+            :height="roomHeight * 0.28"
+            rx="6"
+            fill="rgba(200, 155, 60, 0.18)"
+            stroke="rgba(200, 155, 60, 0.72)"
+            stroke-width="2"
+          />
+
+          <text
+            :x="roomX + roomWidth"
+            :y="roomY + roomHeight + 34"
+            text-anchor="end"
+            class="proportion-grid__svg-value"
+          >
+            dimensión proporcional · {{ formatCentimeters(resultMeasureCm) }}
+          </text>
+        </template>
+
+        <template v-else-if="templateId === 'furniture'">
+          <text
+            :x="furnitureX"
+            y="64"
+            class="proportion-grid__svg-summary"
+          >
+            Mueble · módulo y pieza
+          </text>
+
+          <rect
+            :x="furnitureX"
+            :y="furnitureY"
+            :width="furnitureWidth"
+            :height="furnitureHeight"
+            rx="16"
+            fill="rgba(255, 255, 255, 0.68)"
+            stroke="rgba(22, 56, 50, 0.88)"
+            stroke-width="3"
+          />
+
+          <line
+            :x1="furnitureX + furnitureWidth * 0.25"
+            :y1="furnitureY"
+            :x2="furnitureX + furnitureWidth * 0.25"
+            :y2="furnitureY + furnitureHeight"
+            stroke="rgba(200, 155, 60, 0.72)"
+            stroke-width="2"
+          />
+
+          <line
+            :x1="furnitureX + furnitureWidth * 0.75"
+            :y1="furnitureY"
+            :x2="furnitureX + furnitureWidth * 0.75"
+            :y2="furnitureY + furnitureHeight"
+            stroke="rgba(200, 155, 60, 0.72)"
+            stroke-width="2"
+          />
+
+          <circle
+            :cx="furnitureX + furnitureWidth * 0.5"
+            :cy="furnitureY + furnitureHeight * 0.5"
+            r="18"
+            fill="rgba(200, 155, 60, 0.24)"
+            stroke="rgba(200, 155, 60, 0.88)"
+            stroke-width="2"
+          />
+
+          <line
+            :x1="furnitureX + 24"
+            :y1="furnitureY + furnitureHeight + 32"
+            :x2="furnitureX + furnitureWidth - 24"
+            :y2="furnitureY + furnitureHeight + 32"
+            stroke="rgba(22, 56, 50, 0.72)"
+            stroke-width="3"
+            stroke-linecap="round"
+          />
+
+          <text
+            :x="furnitureX + furnitureWidth"
+            :y="furnitureY + furnitureHeight + 66"
+            text-anchor="end"
+            class="proportion-grid__svg-value"
+          >
+            módulo proporcional · {{ formatCentimeters(resultMeasureCm) }}
+          </text>
+        </template>
+
+        <template v-else-if="templateId === 'graphic'">
+          <text
+            :x="leftPadding"
+            y="42"
+            class="proportion-grid__svg-summary"
+          >
+            Diseño gráfico · retícula visual
+          </text>
+
+          <rect
+            :x="graphicX"
+            :y="graphicY"
+            :width="graphicWidth"
+            :height="graphicHeight"
+            rx="10"
+            fill="rgba(255, 255, 255, 0.74)"
+            stroke="rgba(22, 56, 50, 0.88)"
+            stroke-width="3"
+          />
+
+          <line
+            :x1="graphicX + graphicWidth * 0.33"
+            :y1="graphicY"
+            :x2="graphicX + graphicWidth * 0.33"
+            :y2="graphicY + graphicHeight"
+            stroke="rgba(200, 155, 60, 0.62)"
+            stroke-width="2"
+          />
+
+          <line
+            :x1="graphicX + graphicWidth * 0.66"
+            :y1="graphicY"
+            :x2="graphicX + graphicWidth * 0.66"
+            :y2="graphicY + graphicHeight"
+            stroke="rgba(200, 155, 60, 0.62)"
+            stroke-width="2"
+          />
+
+          <line
+            :x1="graphicX"
+            :y1="graphicY + graphicHeight * 0.38"
+            :x2="graphicX + graphicWidth"
+            :y2="graphicY + graphicHeight * 0.38"
+            stroke="rgba(22, 56, 50, 0.26)"
+            stroke-width="2"
+          />
+
+          <line
+            :x1="graphicX"
+            :y1="graphicY + graphicHeight * 0.72"
+            :x2="graphicX + graphicWidth"
+            :y2="graphicY + graphicHeight * 0.72"
+            stroke="rgba(22, 56, 50, 0.26)"
+            stroke-width="2"
+          />
+
+          <rect
+            :x="graphicX + graphicWidth * 0.1"
+            :y="graphicY + graphicHeight * 0.1"
+            :width="graphicWidth * 0.48"
+            :height="graphicHeight * 0.16"
+            rx="6"
+            fill="rgba(22, 56, 50, 0.14)"
+          />
+
+          <rect
+            :x="graphicX + graphicWidth * 0.1"
+            :y="graphicY + graphicHeight * 0.46"
+            :width="graphicWidth * 0.78"
+            :height="graphicHeight * 0.1"
+            rx="6"
+            fill="rgba(200, 155, 60, 0.24)"
+          />
+
+          <text
+            :x="graphicX + graphicWidth"
+            :y="graphicY + graphicHeight + 28"
+            text-anchor="end"
+            class="proportion-grid__svg-value"
+          >
+            ancho proporcional · {{ formatCentimeters(resultMeasureCm) }}
+          </text>
+        </template>
+
+        <template v-else>
+          <line
+            :x1="leftPadding"
+            :y1="topPadding"
+            :x2="leftPadding"
+            :y2="topPadding + rowHeight + 80"
+            stroke="rgba(22, 56, 50, 0.32)"
+            stroke-width="2"
+            stroke-dasharray="6 8"
+          />
+
+          <text
+            :x="leftPadding"
+            :y="topPadding - 24"
+            class="proportion-grid__svg-note"
+          >
+            origen común
+          </text>
+
+          <g>
+            <text
+              :x="leftPadding"
+              :y="topPadding + 6"
+              class="proportion-grid__svg-title"
+            >
+              Medida base
+            </text>
+
+            <line
+              :x1="leftPadding"
+              :y1="topPadding + 34"
+              :x2="baseEndX"
+              :y2="topPadding + 34"
+              stroke="rgba(22, 56, 50, 0.92)"
+              stroke-width="10"
+              stroke-linecap="round"
+            />
+
+            <circle
+              :cx="baseEndX"
+              :cy="topPadding + 34"
+              r="8"
+              fill="#163832"
+            />
+
+            <text
+              :x="baseEndX"
+              :y="topPadding + 64"
+              text-anchor="end"
+              class="proportion-grid__svg-value"
+            >
+              {{ formatCentimeters(baseMeasureCm) }}
+            </text>
+          </g>
+
+          <g>
+            <text
+              :x="leftPadding"
+              :y="topPadding + rowHeight + 6"
+              class="proportion-grid__svg-title"
+            >
+              Medida proporcional
+            </text>
+
+            <line
+              :x1="leftPadding"
+              :y1="topPadding + rowHeight + 34"
+              :x2="resultEndX"
+              :y2="topPadding + rowHeight + 34"
+              stroke="rgba(200, 155, 60, 0.96)"
+              stroke-width="10"
+              stroke-linecap="round"
+            />
+
+            <circle
+              :cx="resultEndX"
+              :cy="topPadding + rowHeight + 34"
+              r="8"
+              fill="#c89b3c"
+            />
+
+            <text
+              :x="resultEndX"
+              :y="topPadding + rowHeight + 64"
+              text-anchor="end"
+              class="proportion-grid__svg-value"
+            >
+              {{ formatCentimeters(resultMeasureCm) }}
+            </text>
+          </g>
+
+          <text
+            :x="leftPadding"
+            y="270"
+            class="proportion-grid__svg-summary"
+          >
+            {{ ratioName }} · {{ ratioLabel }}
+          </text>
+        </template>
       </svg>
     </div>
 

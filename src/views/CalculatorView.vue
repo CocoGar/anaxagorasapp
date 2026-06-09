@@ -340,7 +340,9 @@ function calculateResult() {
         :base-measure-cm="calculationResult.baseMeasureCm"
         :result-measure-cm="calculationResult.resultCm"
         :ratio-label="calculationResult.musicalRatio.ratioLabel"
-        :ratio-name="`${calculationResult.designTemplate.name} · ${calculationResult.musicalRatio.name}`"
+        :ratio-name="calculationResult.musicalRatio.name"
+        :template-id="calculationResult.designTemplate.id"
+        :template-name="calculationResult.designTemplate.name"
       />
     </div>
   </section>
