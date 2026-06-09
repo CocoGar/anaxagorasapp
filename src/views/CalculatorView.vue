@@ -2,6 +2,7 @@
 import { computed, ref, watch } from 'vue';
 
 import ProportionGrid from '../components/canvas/ProportionGrid.vue';
+import CalculationHistory from '../components/history/CalculationHistory.vue';
 
 import BaseBadge from '../components/ui/BaseBadge.vue';
 import BaseButton from '../components/ui/BaseButton.vue';
@@ -30,6 +31,12 @@ import {
 } from '../data/designTemplates';
 
 import {
+  clearCalculationHistory,
+  getCalculationHistory,
+  saveCalculationToHistory
+} from '../services/calculationHistoryService';
+
+import {
   formatCentimeters,
   formatMeters,
   formatSpanishNumber
@@ -42,6 +49,7 @@ const anthropometricUnitId = ref('foot');
 const musicalRatioId = ref('fifth');
 const calculationResult = ref(null);
 const formTouched = ref(false);
+const calculationHistory = ref(getCalculationHistory());
 
 const validationErrors = computed(() =>
   validateCalculatorForm({
@@ -146,10 +154,17 @@ function calculateResult() {
     return;
   }
 
-  calculationResult.value = {
+  const result = {
     ...calculateAnaxagorasProportion(normalizedForm.value),
     designTemplate: selectedDesignTemplate.value
   };
+
+  calculationResult.value = result;
+  calculationHistory.value = saveCalculationToHistory(result);
+}
+
+function clearHistory() {
+  calculationHistory.value = clearCalculationHistory();
 }
 </script>
 
@@ -343,6 +358,13 @@ function calculateResult() {
         :ratio-name="calculationResult.musicalRatio.name"
         :template-id="calculationResult.designTemplate.id"
         :template-name="calculationResult.designTemplate.name"
+      />
+    </div>
+
+    <div class="page-container calculator-view__history-section">
+      <CalculationHistory
+        :history-items="calculationHistory"
+        @clear-history="clearHistory"
       />
     </div>
   </section>
@@ -544,7 +566,8 @@ function calculateResult() {
   font-weight: 700;
 }
 
-.calculator-view__visual-section {
+.calculator-view__visual-section,
+.calculator-view__history-section {
   margin-top: 48px;
 }
 
