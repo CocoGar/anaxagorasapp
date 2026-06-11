@@ -2,6 +2,7 @@
 import { computed, ref, watch } from 'vue';
 
 import ProportionGrid from '../components/canvas/ProportionGrid.vue';
+import ProportionScene3D from '../components/canvas/ProportionScene3D.vue';
 import CalculationExport from '../components/export/CalculationExport.vue';
 import CalculationHistory from '../components/history/CalculationHistory.vue';
 
@@ -51,6 +52,7 @@ const musicalRatioId = ref('fifth');
 const calculationResult = ref(null);
 const formTouched = ref(false);
 const calculationHistory = ref(getCalculationHistory());
+const visualMode = ref('3d');
 
 const validationErrors = computed(() =>
   validateCalculatorForm({
@@ -155,13 +157,16 @@ function calculateResult() {
     return;
   }
 
-  const result = calculateAnaxagorasProportion({
-    ...normalizedForm.value,
-    designTemplateId: designTemplateId.value
-  });
+  const result = {
+    ...calculateAnaxagorasProportion(normalizedForm.value),
+    heightCm: normalizedForm.value.heightCm,
+    anthropometricUnit: selectedAnthropometricUnit.value,
+    designTemplate: selectedDesignTemplate.value
+  };
 
   calculationResult.value = result;
   calculationHistory.value = saveCalculationToHistory(result);
+  visualMode.value = '3d';
 }
 
 function clearHistory() {
@@ -339,30 +344,11 @@ function clearHistory() {
             <div>
               <dt>Lectura del cálculo</dt>
               <dd>
-                {{ calculationResult.trace.summary }}
+                {{ formatSpanishNumber(calculationResult.quantity) }}
+                unidades humanas transformadas mediante una proporción musical.
               </dd>
             </div>
           </dl>
-
-          <div class="result-panel__trace">
-            <p class="result-panel__trace-title">
-              Trazabilidad del cálculo
-            </p>
-
-            <p class="result-panel__trace-formula">
-              {{ calculationResult.trace.formula }}
-            </p>
-
-            <ol class="result-panel__trace-list">
-              <li
-                v-for="step in calculationResult.trace.steps"
-                :key="step.id"
-              >
-                <strong>{{ step.title }}</strong>
-                <span>{{ step.description }}</span>
-              </li>
-            </ol>
-          </div>
         </div>
 
         <CalculationExport :calculation="calculationResult" />
@@ -373,7 +359,50 @@ function clearHistory() {
       v-if="calculationResult"
       class="page-container calculator-view__visual-section"
     >
+      <div class="calculator-view__visual-header">
+        <div>
+          <p class="calculator-view__visual-label">Representación del resultado</p>
+          <h3 class="calculator-view__visual-title">
+            Visualización proporcional
+          </h3>
+          <p class="calculator-view__visual-description">
+            Puedes alternar entre la vista espacial 3D y la retícula 2D sin perder el cálculo actual.
+          </p>
+        </div>
+
+        <div class="calculator-view__visual-switch">
+          <button
+            type="button"
+            class="calculator-view__visual-switch-button"
+            :class="{ 'calculator-view__visual-switch-button--active': visualMode === '3d' }"
+            @click="visualMode = '3d'"
+          >
+            Vista 3D técnica
+          </button>
+
+          <button
+            type="button"
+            class="calculator-view__visual-switch-button"
+            :class="{ 'calculator-view__visual-switch-button--active': visualMode === '2d' }"
+            @click="visualMode = '2d'"
+          >
+            Retícula 2D
+          </button>
+        </div>
+      </div>
+
+      <ProportionScene3D
+        v-if="visualMode === '3d'"
+        :base-measure-cm="calculationResult.baseMeasureCm"
+        :result-measure-cm="calculationResult.resultCm"
+        :ratio-label="calculationResult.musicalRatio.ratioLabel"
+        :ratio-name="calculationResult.musicalRatio.name"
+        :template-id="calculationResult.designTemplate.id"
+        :template-name="calculationResult.designTemplate.name"
+      />
+
       <ProportionGrid
+        v-else
         :base-measure-cm="calculationResult.baseMeasureCm"
         :result-measure-cm="calculationResult.resultCm"
         :ratio-label="calculationResult.musicalRatio.ratioLabel"
@@ -588,58 +617,76 @@ function clearHistory() {
   font-weight: 700;
 }
 
-.result-panel__trace {
-  display: grid;
-  gap: 12px;
-  margin-top: 4px;
-  padding: 18px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: var(--radius-md);
-  background: rgba(255, 255, 255, 0.08);
+.calculator-view__visual-section,
+.calculator-view__history-section {
+  margin-top: 48px;
 }
 
-.result-panel__trace-title {
-  margin: 0;
-  color: rgba(255, 255, 255, 0.72);
-  font-size: 0.76rem;
+.calculator-view__visual-header {
+  display: flex;
+  gap: 20px;
+  align-items: end;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.calculator-view__visual-label {
+  margin: 0 0 8px;
+  color: var(--color-accent);
+  font-size: 0.72rem;
   font-weight: 900;
   letter-spacing: 0.14em;
   text-transform: uppercase;
 }
 
-.result-panel__trace-formula {
+.calculator-view__visual-title {
   margin: 0;
-  color: #ffffff;
-  font-weight: 900;
-  line-height: 1.5;
+  color: var(--color-primary);
+  font-size: clamp(1.7rem, 3vw, 2.4rem);
+  line-height: 1;
+  letter-spacing: -0.04em;
 }
 
-.result-panel__trace-list {
-  display: grid;
+.calculator-view__visual-description {
+  max-width: 620px;
+  margin: 12px 0 0;
+  color: var(--color-muted);
+  line-height: 1.6;
+}
+
+.calculator-view__visual-switch {
+  display: inline-flex;
   gap: 10px;
-  margin: 0;
-  padding-left: 18px;
+  align-items: center;
+  padding: 6px;
+  border: 1px solid rgba(22, 56, 50, 0.1);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: var(--shadow-card);
 }
 
-.result-panel__trace-list li {
-  color: rgba(255, 255, 255, 0.78);
-  line-height: 1.5;
+.calculator-view__visual-switch-button {
+  padding: 10px 16px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--color-primary);
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
 }
 
-.result-panel__trace-list strong {
-  display: block;
+.calculator-view__visual-switch-button:hover {
+  transform: translateY(-1px);
+}
+
+.calculator-view__visual-switch-button--active {
+  background: var(--color-primary);
   color: #ffffff;
-  font-weight: 900;
-}
-
-.result-panel__trace-list span {
-  display: block;
-  margin-top: 2px;
-}
-
-.calculator-view__visual-section,
-.calculator-view__history-section {
-  margin-top: 48px;
 }
 
 @media (max-width: 900px) {
@@ -649,6 +696,15 @@ function clearHistory() {
 
   .calculator-view__grid {
     grid-template-columns: 1fr;
+  }
+
+  .calculator-view__visual-header {
+    align-items: start;
+    flex-direction: column;
+  }
+
+  .calculator-view__visual-switch {
+    flex-wrap: wrap;
   }
 }
 </style>
