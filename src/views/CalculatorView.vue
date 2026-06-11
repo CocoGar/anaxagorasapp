@@ -339,11 +339,30 @@ function clearHistory() {
             <div>
               <dt>Lectura del cálculo</dt>
               <dd>
-                {{ formatSpanishNumber(calculationResult.quantity) }}
-                unidades humanas transformadas mediante una proporción musical.
+                {{ calculationResult.trace.summary }}
               </dd>
             </div>
           </dl>
+
+          <div class="result-panel__trace">
+            <p class="result-panel__trace-title">
+              Trazabilidad del cálculo
+            </p>
+
+            <p class="result-panel__trace-formula">
+              {{ calculationResult.trace.formula }}
+            </p>
+
+            <ol class="result-panel__trace-list">
+              <li
+                v-for="step in calculationResult.trace.steps"
+                :key="step.id"
+              >
+                <strong>{{ step.title }}</strong>
+                <span>{{ step.description }}</span>
+              </li>
+            </ol>
+          </div>
         </div>
 
         <CalculationExport :calculation="calculationResult" />
@@ -567,6 +586,55 @@ function clearHistory() {
   margin: 0;
   color: #ffffff;
   font-weight: 700;
+}
+
+.result-panel__trace {
+  display: grid;
+  gap: 12px;
+  margin-top: 4px;
+  padding: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.result-panel__trace-title {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 0.76rem;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.result-panel__trace-formula {
+  margin: 0;
+  color: #ffffff;
+  font-weight: 900;
+  line-height: 1.5;
+}
+
+.result-panel__trace-list {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding-left: 18px;
+}
+
+.result-panel__trace-list li {
+  color: rgba(255, 255, 255, 0.78);
+  line-height: 1.5;
+}
+
+.result-panel__trace-list strong {
+  display: block;
+  color: #ffffff;
+  font-weight: 900;
+}
+
+.result-panel__trace-list span {
+  display: block;
+  margin-top: 2px;
 }
 
 .calculator-view__visual-section,

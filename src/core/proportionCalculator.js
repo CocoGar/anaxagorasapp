@@ -3,6 +3,7 @@ import {
   getAnthropometricUnitById,
   roundToTwoDecimals
 } from './anthropometricSystem';
+import { buildCalculationTrace } from './calculationTrace';
 import { getMusicalRatioById } from './musicalRatios';
 import { getDesignTemplateById } from '../data/designTemplates';
 
@@ -60,7 +61,7 @@ export function calculateAnaxagorasProportion({
   const resultCm = roundToTwoDecimals(baseMeasureCm * musicalRatio.value);
   const resultMeters = roundToTwoDecimals(resultCm / 100);
 
-  return {
+  const calculation = {
     id: createCalculationId(),
     createdAt: new Date().toISOString(),
     heightCm: normalizedHeightCm,
@@ -74,5 +75,10 @@ export function calculateAnaxagorasProportion({
     baseMeasureCm,
     resultCm,
     resultMeters
+  };
+
+  return {
+    ...calculation,
+    trace: buildCalculationTrace(calculation)
   };
 }
