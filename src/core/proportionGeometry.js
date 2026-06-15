@@ -1,3 +1,100 @@
+const DEFAULT_TEMPLATE_ID = 'free-composition';
+
+const SCENE_LIMITS = {
+  minProjectedWidth: 110,
+  maxProjectedWidth: 230,
+  minProjectedHeight: 70,
+  maxProjectedHeight: 210,
+  minProjectedDepth: 24,
+  maxProjectedDepth: 130
+};
+
+const TEMPLATE_GEOMETRY_RULES = {
+  'free-composition': {
+    sceneTitle: 'Composición espacial',
+    sceneDescription:
+      'Comparación volumétrica neutra entre la medida base y la medida proporcional.',
+    dimensionLabels: {
+      width: 'Anchura',
+      height: 'Altura',
+      depth: 'Profundidad'
+    },
+    factors: {
+      width: 1,
+      height: 0.5,
+      depth: 0.4
+    }
+  },
+  facade: {
+    sceneTitle: 'Fachada espacial',
+    sceneDescription:
+      'Interpreta la medida proporcional como anchura principal de una fachada simplificada.',
+    dimensionLabels: {
+      width: 'Anchura',
+      height: 'Altura fachada',
+      depth: 'Profundidad técnica'
+    },
+    factors: {
+      width: 1,
+      height: 0.62,
+      depth: 0.1
+    }
+  },
+  room: {
+    sceneTitle: 'Espacio interior',
+    sceneDescription:
+      'Interpreta la medida proporcional como longitud principal de una estancia.',
+    dimensionLabels: {
+      width: 'Longitud',
+      height: 'Altura útil',
+      depth: 'Anchura'
+    },
+    factors: {
+      width: 1,
+      height: 0.38,
+      depth: 0.75
+    }
+  },
+  furniture: {
+    sceneTitle: 'Volumen de mueble',
+    sceneDescription:
+      'Interpreta la proporción como una pieza modular con ancho, alto y fondo.',
+    dimensionLabels: {
+      width: 'Anchura',
+      height: 'Altura',
+      depth: 'Fondo'
+    },
+    factors: {
+      width: 1,
+      height: 0.45,
+      depth: 0.38
+    }
+  },
+  graphic: {
+    sceneTitle: 'Plano gráfico en perspectiva',
+    sceneDescription:
+      'Interpreta la proporción como un plano gráfico vertical con grosor técnico mínimo.',
+    dimensionLabels: {
+      width: 'Anchura',
+      height: 'Altura',
+      depth: 'Grosor'
+    },
+    factors: {
+      width: 1,
+      height: 1.414,
+      depth: 0.08
+    }
+  }
+};
+
+function getTemplateRule(templateId) {
+  return TEMPLATE_GEOMETRY_RULES[templateId] || TEMPLATE_GEOMETRY_RULES[DEFAULT_TEMPLATE_ID];
+}
+
+function roundToTwoDecimals(value) {
+  return Number(value.toFixed(2));
+}
+
 function roundToInteger(value) {
   return Math.round(value);
 }
@@ -6,116 +103,92 @@ function clamp(value, min, max) {
   return Math.min(Math.max(value, min), max);
 }
 
-function scaleMeasureToWidth(measureCm, maxMeasureCm, minWidth, maxWidth) {
-  if (!Number.isFinite(measureCm) || measureCm <= 0 || !Number.isFinite(maxMeasureCm) || maxMeasureCm <= 0) {
-    return minWidth;
+function normalizePositiveMeasure(value) {
+  const numericValue = Number(value);
+
+  if (!Number.isFinite(numericValue) || numericValue <= 0) {
+    return 1;
   }
 
-  const proportionalWidth = (measureCm / maxMeasureCm) * maxWidth;
-
-  return roundToInteger(clamp(proportionalWidth, minWidth, maxWidth));
+  return numericValue;
 }
 
-function getTemplateConfig(templateId) {
-  switch (templateId) {
-    case 'facade':
-      return {
-        sceneTitle: 'Fachada espacial',
-        sceneDescription: 'Compara el volumen base y el volumen proporcional como una fachada simplificada.',
-        minWidth: 108,
-        maxWidth: 220,
-        heightRatio: 0.48,
-        depthRatio: 0.16,
-        minHeight: 118,
-        minDepth: 26
-      };
+function createRealDimensions(mainMeasureCm, rule) {
+  const normalizedMainMeasure = normalizePositiveMeasure(mainMeasureCm);
 
-    case 'room':
-      return {
-        sceneTitle: 'Espacio interior',
-        sceneDescription: 'Representa la proporción como una caja espacial para entender anchura, profundidad y altura.',
-        minWidth: 120,
-        maxWidth: 220,
-        heightRatio: 0.34,
-        depthRatio: 0.62,
-        minHeight: 110,
-        minDepth: 110
-      };
-
-    case 'furniture':
-      return {
-        sceneTitle: 'Volumen de mueble',
-        sceneDescription: 'La pieza se interpreta como un objeto modular con presencia volumétrica.',
-        minWidth: 110,
-        maxWidth: 220,
-        heightRatio: 0.42,
-        depthRatio: 0.40,
-        minHeight: 92,
-        minDepth: 86
-      };
-
-    case 'graphic':
-      return {
-        sceneTitle: 'Plano gráfico en perspectiva',
-        sceneDescription: 'La retícula se transforma en un plano gráfico con ligera profundidad para facilitar la lectura.',
-        minWidth: 110,
-        maxWidth: 180,
-        heightRatio: 1.28,
-        depthRatio: 0.10,
-        minHeight: 190,
-        minDepth: 24
-      };
-
-    case 'free-composition':
-    default:
-      return {
-        sceneTitle: 'Composición espacial',
-        sceneDescription: 'Comparación directa entre medida base y medida proporcional en un volumen neutro.',
-        minWidth: 110,
-        maxWidth: 220,
-        heightRatio: 0.36,
-        depthRatio: 0.36,
-        minHeight: 96,
-        minDepth: 72
-      };
-  }
-}
-
-function createBoxDimensions(width, templateConfig) {
   return {
-    width,
-    height: roundToInteger(Math.max(templateConfig.minHeight, width * templateConfig.heightRatio)),
-    depth: roundToInteger(Math.max(templateConfig.minDepth, width * templateConfig.depthRatio))
+    widthCm: roundToTwoDecimals(normalizedMainMeasure * rule.factors.width),
+    heightCm: roundToTwoDecimals(normalizedMainMeasure * rule.factors.height),
+    depthCm: roundToTwoDecimals(normalizedMainMeasure * rule.factors.depth)
+  };
+}
+
+function scaleDimension(valueCm, maxValueCm, minProjectedValue, maxProjectedValue) {
+  const normalizedValue = normalizePositiveMeasure(valueCm);
+  const normalizedMaxValue = normalizePositiveMeasure(maxValueCm);
+  const projectedValue = (normalizedValue / normalizedMaxValue) * maxProjectedValue;
+
+  return roundToInteger(
+    clamp(projectedValue, minProjectedValue, maxProjectedValue)
+  );
+}
+
+function createProjectedDimensions(realDimensions, scaleReference) {
+  return {
+    projectedWidth: scaleDimension(
+      realDimensions.widthCm,
+      scaleReference.widthCm,
+      SCENE_LIMITS.minProjectedWidth,
+      SCENE_LIMITS.maxProjectedWidth
+    ),
+    projectedHeight: scaleDimension(
+      realDimensions.heightCm,
+      scaleReference.heightCm,
+      SCENE_LIMITS.minProjectedHeight,
+      SCENE_LIMITS.maxProjectedHeight
+    ),
+    projectedDepth: scaleDimension(
+      realDimensions.depthCm,
+      scaleReference.depthCm,
+      SCENE_LIMITS.minProjectedDepth,
+      SCENE_LIMITS.maxProjectedDepth
+    )
+  };
+}
+
+function createGeometryObject(mainMeasureCm, rule, scaleReference) {
+  const realDimensions = createRealDimensions(mainMeasureCm, rule);
+  const projectedDimensions = createProjectedDimensions(realDimensions, scaleReference);
+
+  return {
+    mainMeasureCm: roundToTwoDecimals(normalizePositiveMeasure(mainMeasureCm)),
+    ...realDimensions,
+    ...projectedDimensions
   };
 }
 
 export function createProportionGeometry({
-  templateId = 'free-composition',
+  templateId = DEFAULT_TEMPLATE_ID,
   baseMeasureCm,
   resultMeasureCm
 }) {
-  const templateConfig = getTemplateConfig(templateId);
-  const maxMeasureCm = Math.max(baseMeasureCm, resultMeasureCm, 1);
+  const rule = getTemplateRule(templateId);
 
-  const baseWidth = scaleMeasureToWidth(
-    baseMeasureCm,
-    maxMeasureCm,
-    templateConfig.minWidth,
-    templateConfig.maxWidth
-  );
+  const baseRealDimensions = createRealDimensions(baseMeasureCm, rule);
+  const resultRealDimensions = createRealDimensions(resultMeasureCm, rule);
 
-  const resultWidth = scaleMeasureToWidth(
-    resultMeasureCm,
-    maxMeasureCm,
-    templateConfig.minWidth,
-    templateConfig.maxWidth
-  );
+  const scaleReference = {
+    widthCm: Math.max(baseRealDimensions.widthCm, resultRealDimensions.widthCm),
+    heightCm: Math.max(baseRealDimensions.heightCm, resultRealDimensions.heightCm),
+    depthCm: Math.max(baseRealDimensions.depthCm, resultRealDimensions.depthCm)
+  };
 
   return {
     templateId,
-    sceneTitle: templateConfig.sceneTitle,
-    sceneDescription: templateConfig.sceneDescription,
-    baseBox: createBoxDimensions(baseWidth, templateConfig),
-    resultBox: createBoxDimensions(resultWidth, templateConfig)
+    sceneTitle: rule.sceneTitle,
+    sceneDescription: rule.sceneDescription,
+    dimensionLabels: rule.dimensionLabels,
+    baseObject: createGeometryObject(baseMeasureCm, rule, scaleReference),
+    resultObject: createGeometryObject(resultMeasureCm, rule, scaleReference)
   };
 }

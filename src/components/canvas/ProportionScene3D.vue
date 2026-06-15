@@ -44,11 +44,11 @@ const sceneGeometry = computed(() =>
 );
 
 const baseScene = computed(() =>
-  createProjectedBox(110, 372, sceneGeometry.value.baseBox)
+  createProjectedBox(110, 392, sceneGeometry.value.baseObject)
 );
 
 const resultScene = computed(() =>
-  createProjectedBox(470, 372, sceneGeometry.value.resultBox)
+  createProjectedBox(500, 392, sceneGeometry.value.resultObject)
 );
 
 const baseDecorations = computed(() =>
@@ -67,33 +67,52 @@ const visualFactor = computed(() =>
   Number((props.resultMeasureCm / props.baseMeasureCm).toFixed(2))
 );
 
+function round(value) {
+  return Math.round(value);
+}
+
 function pointsToString(points) {
   return points.map((point) => `${point.x},${point.y}`).join(' ');
 }
 
 function createProjectedBox(originX, originY, box) {
-  const depthOffsetX = round(box.depth * 0.62);
-  const depthOffsetY = round(box.depth * 0.38);
+  const depthOffsetX = round(box.projectedDepth * 0.62);
+  const depthOffsetY = round(box.projectedDepth * 0.38);
 
   const frontBottomLeft = { x: originX, y: originY };
-  const frontBottomRight = { x: originX + box.width, y: originY };
-  const frontTopLeft = { x: originX, y: originY - box.height };
-  const frontTopRight = { x: originX + box.width, y: originY - box.height };
+  const frontBottomRight = { x: originX + box.projectedWidth, y: originY };
+  const frontTopLeft = { x: originX, y: originY - box.projectedHeight };
+  const frontTopRight = {
+    x: originX + box.projectedWidth,
+    y: originY - box.projectedHeight
+  };
 
-  const backBottomLeft = { x: originX + depthOffsetX, y: originY - depthOffsetY };
-  const backBottomRight = { x: originX + box.width + depthOffsetX, y: originY - depthOffsetY };
-  const backTopLeft = { x: originX + depthOffsetX, y: originY - box.height - depthOffsetY };
-  const backTopRight = { x: originX + box.width + depthOffsetX, y: originY - box.height - depthOffsetY };
+  const backBottomLeft = {
+    x: originX + depthOffsetX,
+    y: originY - depthOffsetY
+  };
+  const backBottomRight = {
+    x: originX + box.projectedWidth + depthOffsetX,
+    y: originY - depthOffsetY
+  };
+  const backTopLeft = {
+    x: originX + depthOffsetX,
+    y: originY - box.projectedHeight - depthOffsetY
+  };
+  const backTopRight = {
+    x: originX + box.projectedWidth + depthOffsetX,
+    y: originY - box.projectedHeight - depthOffsetY
+  };
 
   return {
-    width: box.width,
-    height: box.height,
-    depth: box.depth,
+    ...box,
+    depthOffsetX,
+    depthOffsetY,
     frontFace: {
       x: frontTopLeft.x,
       y: frontTopLeft.y,
-      width: box.width,
-      height: box.height
+      width: box.projectedWidth,
+      height: box.projectedHeight
     },
     frontBottomLeft,
     frontBottomRight,
@@ -121,15 +140,13 @@ function createProjectedBox(originX, originY, box) {
       backTopRight,
       backTopLeft
     ]),
-    topLabelX: originX + box.width / 2,
-    topLabelY: frontTopLeft.y - 20,
-    measureLabelX: originX + box.width / 2 + depthOffsetX * 0.2,
-    measureLabelY: originY + 34
+    widthLabelX: originX + box.projectedWidth / 2,
+    widthLabelY: originY + 34,
+    heightLabelX: originX - 24,
+    heightLabelY: originY - box.projectedHeight / 2,
+    depthLabelX: originX + box.projectedWidth + depthOffsetX + 34,
+    depthLabelY: originY - depthOffsetY / 2
   };
-}
-
-function round(value) {
-  return Math.round(value);
 }
 
 function createTemplateDecorations(layout, templateId) {
@@ -328,7 +345,7 @@ function createTemplateDecorations(layout, templateId) {
     <div class="proportion-scene__header">
       <div>
         <p class="proportion-scene__label">Vista espacial 3D</p>
-        <h3>{{ templateName }}</h3>
+        <h3>{{ sceneGeometry.sceneTitle }}</h3>
         <p class="proportion-scene__description">
           {{ sceneGeometry.sceneDescription }}
         </p>
@@ -342,7 +359,7 @@ function createTemplateDecorations(layout, templateId) {
     <div class="proportion-scene__canvas">
       <svg
         class="proportion-scene__svg"
-        viewBox="0 0 900 520"
+        viewBox="0 0 940 560"
         role="img"
         aria-label="Comparación espacial 3D entre medida base y medida proporcional"
       >
@@ -401,17 +418,17 @@ function createTemplateDecorations(layout, templateId) {
         <rect
           x="0"
           y="0"
-          width="900"
-          height="520"
+          width="940"
+          height="560"
           rx="24"
           fill="url(#sceneGrid)"
         />
 
         <line
           x1="60"
-          y1="402"
-          x2="840"
-          y2="402"
+          y1="422"
+          x2="880"
+          y2="422"
           stroke="rgba(22, 56, 50, 0.22)"
           stroke-width="2"
           stroke-dasharray="10 10"
@@ -421,21 +438,21 @@ function createTemplateDecorations(layout, templateId) {
           Medida base
         </text>
 
-        <text x="470" y="70" class="proportion-scene__svg-title">
+        <text x="500" y="70" class="proportion-scene__svg-title">
           Medida proporcional
         </text>
 
         <line
-          x1="350"
+          x1="380"
           y1="170"
-          x2="430"
+          x2="460"
           y2="170"
           stroke="rgba(200, 155, 60, 0.92)"
           stroke-width="4"
           marker-end="url(#arrowHead)"
         />
 
-        <text x="390" y="150" text-anchor="middle" class="proportion-scene__svg-ratio-note">
+        <text x="420" y="150" text-anchor="middle" class="proportion-scene__svg-ratio-note">
           {{ ratioName }} · {{ ratioLabel }}
         </text>
 
@@ -446,12 +463,14 @@ function createTemplateDecorations(layout, templateId) {
             stroke="rgba(22, 56, 50, 0.82)"
             stroke-width="2"
           />
+
           <polygon
             :points="baseScene.sideFacePoints"
             fill="url(#baseSideGradient)"
             stroke="rgba(22, 56, 50, 0.82)"
             stroke-width="2"
           />
+
           <polygon
             :points="baseScene.frontFacePoints"
             fill="url(#baseFrontGradient)"
@@ -497,21 +516,59 @@ function createTemplateDecorations(layout, templateId) {
 
           <line
             :x1="baseScene.frontBottomLeft.x"
-            :y1="baseScene.measureLabelY - 10"
+            :y1="baseScene.widthLabelY - 10"
             :x2="baseScene.frontBottomRight.x"
-            :y2="baseScene.measureLabelY - 10"
+            :y2="baseScene.widthLabelY - 10"
             stroke="rgba(22, 56, 50, 0.72)"
             stroke-width="3"
             stroke-linecap="round"
           />
 
+          <line
+            :x1="baseScene.frontBottomLeft.x"
+            :y1="baseScene.frontBottomLeft.y"
+            :x2="baseScene.frontTopLeft.x"
+            :y2="baseScene.frontTopLeft.y"
+            stroke="rgba(200, 155, 60, 0.62)"
+            stroke-width="3"
+            stroke-linecap="round"
+          />
+
+          <line
+            :x1="baseScene.frontBottomRight.x"
+            :y1="baseScene.frontBottomRight.y"
+            :x2="baseScene.backBottomRight.x"
+            :y2="baseScene.backBottomRight.y"
+            stroke="rgba(200, 155, 60, 0.62)"
+            stroke-width="3"
+            stroke-linecap="round"
+          />
+
           <text
-            :x="baseScene.measureLabelX"
-            :y="baseScene.measureLabelY + 14"
+            :x="baseScene.widthLabelX"
+            :y="baseScene.widthLabelY + 14"
             text-anchor="middle"
             class="proportion-scene__svg-measure"
           >
-            {{ formatCentimeters(baseMeasureCm) }}
+            {{ formatCentimeters(sceneGeometry.baseObject.widthCm) }}
+          </text>
+
+          <text
+            :x="baseScene.heightLabelX"
+            :y="baseScene.heightLabelY"
+            text-anchor="middle"
+            class="proportion-scene__svg-measure proportion-scene__svg-measure--vertical"
+          >
+            {{ formatCentimeters(sceneGeometry.baseObject.heightCm) }}
+          </text>
+
+          <text
+            :x="baseScene.depthLabelX"
+            :y="baseScene.depthLabelY"
+            text-anchor="middle"
+            class="proportion-scene__svg-measure"
+          >
+            {{ formatCentimeters(sceneGeometry.baseObject.depthCm) }}
           </text>
         </g>
 
@@ -522,12 +579,14 @@ function createTemplateDecorations(layout, templateId) {
             stroke="rgba(200, 155, 60, 0.84)"
             stroke-width="2"
           />
+
           <polygon
             :points="resultScene.sideFacePoints"
             fill="url(#resultSideGradient)"
             stroke="rgba(200, 155, 60, 0.84)"
             stroke-width="2"
           />
+
           <polygon
             :points="resultScene.frontFacePoints"
             fill="url(#resultFrontGradient)"
@@ -573,24 +632,98 @@ function createTemplateDecorations(layout, templateId) {
 
           <line
             :x1="resultScene.frontBottomLeft.x"
-            :y1="resultScene.measureLabelY - 10"
+            :y1="resultScene.widthLabelY - 10"
             :x2="resultScene.frontBottomRight.x"
-            :y2="resultScene.measureLabelY - 10"
+            :y2="resultScene.widthLabelY - 10"
             stroke="rgba(22, 56, 50, 0.72)"
             stroke-width="3"
             stroke-linecap="round"
           />
 
+          <line
+            :x1="resultScene.frontBottomLeft.x"
+            :y1="resultScene.frontBottomLeft.y"
+            :x2="resultScene.frontTopLeft.x"
+            :y2="resultScene.frontTopLeft.y"
+            stroke="rgba(22, 56, 50, 0.62)"
+            stroke-width="3"
+            stroke-linecap="round"
+          />
+
+          <line
+            :x1="resultScene.frontBottomRight.x"
+            :y1="resultScene.frontBottomRight.y"
+            :x2="resultScene.backBottomRight.x"
+            :y2="resultScene.backBottomRight.y"
+            stroke="rgba(22, 56, 50, 0.62)"
+            stroke-width="3"
+            stroke-linecap="round"
+          />
+
           <text
-            :x="resultScene.measureLabelX"
-            :y="resultScene.measureLabelY + 14"
+            :x="resultScene.widthLabelX"
+            :y="resultScene.widthLabelY + 14"
             text-anchor="middle"
             class="proportion-scene__svg-measure"
           >
-            {{ formatCentimeters(resultMeasureCm) }}
+            {{ formatCentimeters(sceneGeometry.resultObject.widthCm) }}
+          </text>
+
+          <text
+            :x="resultScene.heightLabelX"
+            :y="resultScene.heightLabelY"
+            text-anchor="middle"
+            class="proportion-scene__svg-measure proportion-scene__svg-measure--vertical"
+          >
+            {{ formatCentimeters(sceneGeometry.resultObject.heightCm) }}
+          </text>
+
+          <text
+            :x="resultScene.depthLabelX"
+            :y="resultScene.depthLabelY"
+            text-anchor="middle"
+            class="proportion-scene__svg-measure"
+          >
+            {{ formatCentimeters(sceneGeometry.resultObject.depthCm) }}
           </text>
         </g>
       </svg>
+    </div>
+
+    <div class="proportion-scene__dimensions">
+      <article>
+        <span>Objeto base</span>
+        <strong>{{ formatCentimeters(baseMeasureCm) }}</strong>
+        <p>
+          {{ sceneGeometry.dimensionLabels.width }}:
+          {{ formatCentimeters(sceneGeometry.baseObject.widthCm) }}
+        </p>
+        <p>
+          {{ sceneGeometry.dimensionLabels.height }}:
+          {{ formatCentimeters(sceneGeometry.baseObject.heightCm) }}
+        </p>
+        <p>
+          {{ sceneGeometry.dimensionLabels.depth }}:
+          {{ formatCentimeters(sceneGeometry.baseObject.depthCm) }}
+        </p>
+      </article>
+
+      <article>
+        <span>Objeto proporcional</span>
+        <strong>{{ formatCentimeters(resultMeasureCm) }}</strong>
+        <p>
+          {{ sceneGeometry.dimensionLabels.width }}:
+          {{ formatCentimeters(sceneGeometry.resultObject.widthCm) }}
+        </p>
+        <p>
+          {{ sceneGeometry.dimensionLabels.height }}:
+          {{ formatCentimeters(sceneGeometry.resultObject.heightCm) }}
+        </p>
+        <p>
+          {{ sceneGeometry.dimensionLabels.depth }}:
+          {{ formatCentimeters(sceneGeometry.resultObject.depthCm) }}
+        </p>
+      </article>
     </div>
 
     <div class="proportion-scene__data">
@@ -706,8 +839,49 @@ function createTemplateDecorations(layout, templateId) {
 
 .proportion-scene__svg-measure {
   fill: var(--color-primary);
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 900;
+}
+
+.proportion-scene__svg-measure--vertical {
+  writing-mode: vertical-rl;
+}
+
+.proportion-scene__dimensions {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.proportion-scene__dimensions article {
+  display: grid;
+  gap: 6px;
+  padding: 18px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-soft);
+}
+
+.proportion-scene__dimensions span,
+.proportion-scene__data span {
+  color: var(--color-muted);
+  font-size: 0.76rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.proportion-scene__dimensions strong {
+  color: var(--color-primary);
+  font-size: 1.3rem;
+  font-weight: 900;
+}
+
+.proportion-scene__dimensions p {
+  margin: 0;
+  color: var(--color-primary);
+  font-size: 0.94rem;
+  font-weight: 700;
+  line-height: 1.4;
 }
 
 .proportion-scene__data {
@@ -725,13 +899,6 @@ function createTemplateDecorations(layout, templateId) {
   background: var(--color-surface-soft);
 }
 
-.proportion-scene__data span {
-  color: var(--color-muted);
-  font-size: 0.76rem;
-  font-weight: 800;
-  text-transform: uppercase;
-}
-
 .proportion-scene__data strong {
   color: var(--color-primary);
   font-size: 1rem;
@@ -747,12 +914,14 @@ function createTemplateDecorations(layout, templateId) {
     flex-direction: column;
   }
 
+  .proportion-scene__dimensions,
   .proportion-scene__data {
     grid-template-columns: 1fr 1fr;
   }
 }
 
 @media (max-width: 520px) {
+  .proportion-scene__dimensions,
   .proportion-scene__data {
     grid-template-columns: 1fr;
   }
