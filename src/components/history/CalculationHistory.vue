@@ -15,10 +15,16 @@ defineProps({
   }
 });
 
-const emit = defineEmits(['clear-history', 'history-updated']);
+const emit = defineEmits(['clear-history']);
 
 function formatHistoryDate(dateValue) {
   if (!dateValue) {
+    return 'Sin fecha';
+  }
+
+  const date = new Date(dateValue);
+
+  if (Number.isNaN(date.getTime())) {
     return 'Sin fecha';
   }
 
@@ -27,7 +33,7 @@ function formatHistoryDate(dateValue) {
     month: '2-digit',
     hour: '2-digit',
     minute: '2-digit'
-  }).format(new Date(dateValue));
+  }).format(date);
 }
 
 function getTemplateShortName(item) {
@@ -46,25 +52,28 @@ function getRatioName(item) {
   return item?.musicalRatio?.name || item?.ratioName || 'Relación proporcional';
 }
 
+function getUnitName(item) {
+  return item?.anthropometricUnit?.name || item?.anthropometricUnitName || 'Unidad humana';
+}
+
 function getResultCm(item) {
-  return item?.resultCm || item?.baseHeight || item?.baseMeasureCm || 0;
+  return Number(item?.resultCm || item?.baseHeight || item?.baseMeasureCm || 0);
 }
 
 function getResultMeters(item) {
-  return item?.resultMeters || getResultCm(item) / 100;
+  return Number(item?.resultMeters || getResultCm(item) / 100);
 }
 
 function getBaseMeasureCm(item) {
-  return item?.baseMeasureCm || item?.baseHeight || 0;
+  return Number(item?.baseMeasureCm || item?.baseHeight || 0);
 }
 
 function getQuantity(item) {
-  return item?.quantity || 1;
+  return Number(item?.quantity || 1);
 }
 
 function handleClearHistory() {
   emit('clear-history');
-  emit('history-updated');
 }
 </script>
 
@@ -116,7 +125,10 @@ function handleClearHistory() {
 
           <div>
             <dt>Unidades</dt>
-            <dd>{{ formatSpanishNumber(getQuantity(item)) }}</dd>
+            <dd>
+              {{ formatSpanishNumber(getQuantity(item)) }}
+              {{ getUnitName(item).toLowerCase() }}
+            </dd>
           </div>
 
           <div>
