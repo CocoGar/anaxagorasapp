@@ -1,6 +1,7 @@
 <script setup>
-import { ref } from 'vue';
-import { exportCalculationAsText } from '../../services/calculationExportService.js';
+import { computed, ref } from 'vue';
+
+import { exportCalculationAsText } from '../../services/calculationExportService';
 
 const props = defineProps({
   calculation: {
@@ -12,15 +13,22 @@ const props = defineProps({
 const exportStatus = ref('');
 const exportError = ref('');
 
-function handleExport() {
+const canExport = computed(() => Boolean(props.calculation));
+
+function clearExportMessages() {
   exportStatus.value = '';
   exportError.value = '';
+}
+
+function handleExport() {
+  clearExportMessages();
 
   try {
-    exportCalculationAsText(props.calculation);
-    exportStatus.value = 'Resultado exportado correctamente.';
+    const fileName = exportCalculationAsText(props.calculation);
+
+    exportStatus.value = `Exportación completada: ${fileName}`;
   } catch (error) {
-    exportError.value = error.message;
+    exportError.value = error.message || 'No se ha podido exportar el cálculo.';
   }
 }
 </script>
@@ -29,22 +37,24 @@ function handleExport() {
   <section class="calculation-export">
     <div class="calculation-export__content">
       <div>
-        <p class="calculation-export__label">Exportación</p>
+        <p class="calculation-export__label">
+          Exportación
+        </p>
 
         <h3 class="calculation-export__title">
           Descargar resultado
         </h3>
 
         <p class="calculation-export__description">
-          Genera un archivo TXT con la plantilla, la unidad humana, la relación musical
-          y el resultado proporcional calculado.
+          Genera un archivo TXT con los datos de entrada, resultado, trazabilidad
+          e interpretación espacial del cálculo.
         </p>
       </div>
 
       <button
         class="calculation-export__button"
         type="button"
-        :disabled="!calculation"
+        :disabled="!canExport"
         @click="handleExport"
       >
         Exportar TXT
@@ -64,6 +74,13 @@ function handleExport() {
     >
       {{ exportError }}
     </p>
+
+    <p
+      v-if="!canExport"
+      class="calculation-export__helper"
+    >
+      Primero realiza un cálculo para activar la exportación.
+    </p>
   </section>
 </template>
 
@@ -71,10 +88,10 @@ function handleExport() {
 .calculation-export {
   display: grid;
   gap: 14px;
-  padding: 20px;
-  border: 1px solid rgba(22, 56, 50, 0.12);
-  border-radius: var(--radius-md);
-  background: rgba(255, 255, 255, 0.72);
+  padding: 22px;
+  border: 1px solid rgba(22, 56, 50, 0.1);
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.62);
 }
 
 .calculation-export__content {
@@ -96,56 +113,66 @@ function handleExport() {
 .calculation-export__title {
   margin: 0;
   color: var(--color-primary);
-  font-size: 1.3rem;
+  font-size: 1.35rem;
+  line-height: 1.1;
   letter-spacing: -0.04em;
 }
 
 .calculation-export__description {
   max-width: 560px;
-  margin: 8px 0 0;
+  margin: 10px 0 0;
   color: var(--color-muted);
   line-height: 1.6;
 }
 
 .calculation-export__button {
   flex: 0 0 auto;
-  padding: 0.9rem 1.15rem;
+  padding: 12px 18px;
   border: 0;
   border-radius: 999px;
   background: var(--color-primary);
   color: #ffffff;
+  font: inherit;
   font-weight: 900;
   cursor: pointer;
   transition:
     opacity 0.2s ease,
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
+    transform 0.2s ease;
 }
 
 .calculation-export__button:hover:not(:disabled) {
   transform: translateY(-1px);
-  box-shadow: 0 12px 28px rgba(22, 56, 50, 0.18);
 }
 
 .calculation-export__button:disabled {
   cursor: not-allowed;
-  opacity: 0.48;
+  opacity: 0.45;
 }
 
 .calculation-export__status,
-.calculation-export__error {
+.calculation-export__error,
+.calculation-export__helper {
   margin: 0;
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
   font-size: 0.92rem;
   font-weight: 800;
   line-height: 1.5;
 }
 
 .calculation-export__status {
-  color: #167a3f;
+  background: rgba(44, 134, 84, 0.12);
+  color: #1f6f45;
 }
 
 .calculation-export__error {
+  background: rgba(180, 55, 55, 0.1);
   color: #8f1f1f;
+}
+
+.calculation-export__helper {
+  background: rgba(22, 56, 50, 0.06);
+  color: var(--color-muted);
 }
 
 @media (max-width: 720px) {
