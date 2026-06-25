@@ -18,28 +18,33 @@ defineProps({
 .base-badge {
   display: inline-flex;
   width: fit-content;
-  min-height: 30px;
+  min-height: 28px;
   align-items: center;
-  padding: 0 12px;
-  border-radius: 999px;
-  font-size: 0.78rem;
-  font-weight: 900;
+  padding: 0 11px;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  font-size: 0.68rem;
+  font-weight: 850;
+  letter-spacing: 0.16em;
   line-height: 1;
+  text-transform: uppercase;
 }
 
 .base-badge--default {
-  border: 1px solid var(--color-border);
-  background: rgba(255, 255, 255, 0.72);
-  color: var(--color-muted);
+  border-color: rgba(20, 36, 31, 0.12);
+  background: rgba(255, 252, 246, 0.54);
+  color: var(--color-muted-strong);
 }
 
 .base-badge--accent {
-  background: rgba(200, 155, 60, 0.12);
-  color: #8a651d;
+  border-color: rgba(183, 138, 82, 0.34);
+  background: rgba(183, 138, 82, 0.11);
+  color: var(--color-accent-strong);
 }
 
 .base-badge--primary {
-  background: rgba(22, 56, 50, 0.1);
+  border-color: rgba(20, 36, 31, 0.16);
+  background: rgba(20, 36, 31, 0.06);
   color: var(--color-primary);
 }
 </style>

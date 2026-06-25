@@ -52,7 +52,7 @@ defineEmits(['update:modelValue']);
       :aria-invalid="Boolean(errorMessage)"
       :aria-describedby="helperText || errorMessage ? `${id}-message` : null"
       @input="$emit('update:modelValue', $event.target.value)"
-    />
+    >
 
     <span
       v-if="errorMessage || helperText"
@@ -73,18 +73,20 @@ defineEmits(['update:modelValue']);
 
 .base-input__label {
   color: var(--color-primary);
-  font-size: 0.88rem;
-  font-weight: 800;
+  font-size: 0.78rem;
+  font-weight: 850;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
 .base-input__control {
   width: 100%;
   min-height: 48px;
   padding: 0 14px;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  background: #ffffff;
-  color: var(--color-text);
+  border: 1px solid rgba(20, 36, 31, 0.16);
+  border-radius: 4px;
+  background: rgba(255, 252, 246, 0.78);
+  color: var(--color-primary);
   outline: none;
   transition:
     border-color 0.2s ease,
@@ -92,29 +94,39 @@ defineEmits(['update:modelValue']);
     background 0.2s ease;
 }
 
+.base-input__control::placeholder {
+  color: rgba(104, 113, 108, 0.66);
+}
+
+.base-input__control:hover {
+  border-color: rgba(20, 36, 31, 0.26);
+  background: rgba(255, 252, 246, 0.94);
+}
+
 .base-input__control:focus {
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 4px rgba(22, 56, 50, 0.12);
+  border-color: rgba(183, 138, 82, 0.78);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-focus);
 }
 
 .base-input__control--error {
-  border-color: rgba(180, 55, 55, 0.72);
-  background: rgba(180, 55, 55, 0.04);
+  border-color: rgba(185, 74, 66, 0.72);
+  background: var(--color-error-soft);
 }
 
 .base-input__control--error:focus {
-  border-color: rgba(180, 55, 55, 0.9);
-  box-shadow: 0 0 0 4px rgba(180, 55, 55, 0.12);
+  border-color: rgba(185, 74, 66, 0.9);
+  box-shadow: 0 0 0 4px rgba(185, 74, 66, 0.14);
 }
 
 .base-input__message {
   color: var(--color-muted);
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   line-height: 1.45;
 }
 
 .base-input__message--error {
-  color: #8f1f1f;
-  font-weight: 700;
+  color: var(--color-error);
+  font-weight: 780;
 }
 </style>

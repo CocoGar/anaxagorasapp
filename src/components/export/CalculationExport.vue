@@ -42,12 +42,12 @@ function handleExport() {
         </p>
 
         <h3 class="calculation-export__title">
-          Descargar resultado
+          Descargar resultado técnico
         </h3>
 
         <p class="calculation-export__description">
-          Genera un archivo TXT con los datos de entrada, resultado, trazabilidad
-          e interpretación espacial del cálculo.
+          Genera un archivo TXT con datos de entrada, resultado, trazabilidad e
+          interpretación espacial del cálculo.
         </p>
       </div>
 
@@ -79,7 +79,7 @@ function handleExport() {
       v-if="!canExport"
       class="calculation-export__helper"
     >
-      Primero realiza un cálculo para activar la exportación.
+      Realiza un cálculo para activar la exportación.
     </p>
   </section>
 </template>
@@ -89,9 +89,10 @@ function handleExport() {
   display: grid;
   gap: 14px;
   padding: 22px;
-  border: 1px solid rgba(22, 56, 50, 0.1);
-  border-radius: var(--radius-lg);
-  background: rgba(255, 255, 255, 0.62);
+  border: 1px solid rgba(20, 36, 31, 0.13);
+  border-radius: 4px;
+  background:
+    linear-gradient(135deg, rgba(255, 252, 246, 0.84), rgba(255, 255, 255, 0.62));
 }
 
 .calculation-export__content {
@@ -103,50 +104,63 @@ function handleExport() {
 
 .calculation-export__label {
   margin: 0 0 8px;
-  color: var(--color-accent);
-  font-size: 0.72rem;
-  font-weight: 900;
-  letter-spacing: 0.14em;
+  color: var(--color-accent-strong);
+  font-size: 0.68rem;
+  font-weight: 850;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
 }
 
 .calculation-export__title {
   margin: 0;
   color: var(--color-primary);
-  font-size: 1.35rem;
+  font-family: var(--font-display);
+  font-size: 1.45rem;
+  font-weight: 500;
   line-height: 1.1;
-  letter-spacing: -0.04em;
+  letter-spacing: -0.035em;
 }
 
 .calculation-export__description {
   max-width: 560px;
   margin: 10px 0 0;
-  color: var(--color-muted);
-  line-height: 1.6;
+  color: var(--color-muted-strong);
+  line-height: 1.65;
 }
 
 .calculation-export__button {
   flex: 0 0 auto;
-  padding: 12px 18px;
-  border: 0;
-  border-radius: 999px;
+  min-height: 42px;
+  padding: 0 18px;
+  border: 1px solid var(--color-primary);
+  border-radius: 4px;
   background: var(--color-primary);
-  color: #ffffff;
+  color: var(--color-surface);
   font: inherit;
-  font-weight: 900;
+  font-size: 0.74rem;
+  font-weight: 850;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
   cursor: pointer;
   transition:
     opacity 0.2s ease,
-    transform 0.2s ease;
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .calculation-export__button:hover:not(:disabled) {
   transform: translateY(-1px);
+  box-shadow: 0 14px 30px rgba(20, 36, 31, 0.16);
+}
+
+.calculation-export__button:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-focus);
 }
 
 .calculation-export__button:disabled {
   cursor: not-allowed;
-  opacity: 0.45;
+  opacity: 0.48;
 }
 
 .calculation-export__status,
@@ -154,25 +168,28 @@ function handleExport() {
 .calculation-export__helper {
   margin: 0;
   padding: 12px 14px;
-  border-radius: var(--radius-sm);
-  font-size: 0.92rem;
-  font-weight: 800;
+  border-radius: 4px;
+  font-size: 0.88rem;
+  font-weight: 760;
   line-height: 1.5;
 }
 
 .calculation-export__status {
-  background: rgba(44, 134, 84, 0.12);
-  color: #1f6f45;
+  border: 1px solid rgba(53, 125, 84, 0.18);
+  background: var(--color-success-soft);
+  color: var(--color-success);
 }
 
 .calculation-export__error {
-  background: rgba(180, 55, 55, 0.1);
-  color: #8f1f1f;
+  border: 1px solid rgba(185, 74, 66, 0.18);
+  background: var(--color-error-soft);
+  color: var(--color-error);
 }
 
 .calculation-export__helper {
-  background: rgba(22, 56, 50, 0.06);
-  color: var(--color-muted);
+  border: 1px solid rgba(20, 36, 31, 0.1);
+  background: rgba(20, 36, 31, 0.04);
+  color: var(--color-muted-strong);
 }
 
 @media (max-width: 720px) {

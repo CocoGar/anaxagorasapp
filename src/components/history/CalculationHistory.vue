@@ -149,7 +149,7 @@ function handleClearHistory() {
     >
       <p>
         Todavía no hay cálculos guardados. Cuando calcules una proporción,
-        aparecerá aquí para que puedas comparar resultados.
+        aparecerá aquí para comparar resultados.
       </p>
     </div>
   </section>
@@ -158,11 +158,12 @@ function handleClearHistory() {
 <style scoped>
 .calculation-history {
   display: grid;
-  gap: 20px;
-  padding: 28px;
-  border: 1px solid rgba(22, 56, 50, 0.1);
-  border-radius: var(--radius-lg);
-  background: rgba(255, 255, 255, 0.72);
+  gap: 22px;
+  padding: clamp(24px, 3vw, 32px);
+  border: 1px solid rgba(20, 36, 31, 0.13);
+  border-radius: 4px;
+  background:
+    linear-gradient(145deg, rgba(255, 252, 246, 0.9), rgba(255, 255, 255, 0.66));
   box-shadow: var(--shadow-card);
   backdrop-filter: blur(18px);
 }
@@ -172,23 +173,27 @@ function handleClearHistory() {
   gap: 16px;
   align-items: start;
   justify-content: space-between;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(20, 36, 31, 0.12);
 }
 
 .calculation-history__label {
   margin: 0 0 8px;
-  color: var(--color-accent);
-  font-size: 0.72rem;
-  font-weight: 900;
-  letter-spacing: 0.14em;
+  color: var(--color-accent-strong);
+  font-size: 0.68rem;
+  font-weight: 850;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
 }
 
 .calculation-history h3 {
   margin: 0;
   color: var(--color-primary);
-  font-size: clamp(1.5rem, 3vw, 2.2rem);
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 3vw, 2.7rem);
+  font-weight: 500;
   line-height: 1;
-  letter-spacing: -0.05em;
+  letter-spacing: -0.045em;
 }
 
 .calculation-history__list {
@@ -201,9 +206,9 @@ function handleClearHistory() {
   display: grid;
   gap: 14px;
   padding: 18px;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  background: var(--color-surface-soft);
+  border: 1px solid rgba(20, 36, 31, 0.12);
+  border-radius: 4px;
+  background: rgba(255, 252, 246, 0.62);
 }
 
 .history-item__top {
@@ -215,8 +220,8 @@ function handleClearHistory() {
 
 .history-item__top span {
   color: var(--color-muted);
-  font-size: 0.78rem;
-  font-weight: 800;
+  font-size: 0.76rem;
+  font-weight: 760;
 }
 
 .history-item__main {
@@ -226,69 +231,80 @@ function handleClearHistory() {
 
 .history-item__main strong {
   color: var(--color-primary);
-  font-size: 1.8rem;
-  font-weight: 900;
-  letter-spacing: -0.06em;
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.045em;
 }
 
 .history-item__main span {
-  color: var(--color-muted);
-  font-weight: 800;
+  color: var(--color-muted-strong);
+  font-weight: 760;
 }
 
 .history-item__details {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
+  gap: 0;
   margin: 0;
+  border-top: 1px solid rgba(20, 36, 31, 0.1);
+  border-bottom: 1px solid rgba(20, 36, 31, 0.1);
 }
 
 .history-item__details div {
   display: grid;
   gap: 4px;
+  padding: 10px 8px;
+  border-right: 1px solid rgba(20, 36, 31, 0.08);
+}
+
+.history-item__details div:last-child {
+  border-right: 0;
 }
 
 .history-item__details dt {
   color: var(--color-muted);
-  font-size: 0.68rem;
-  font-weight: 900;
+  font-size: 0.66rem;
+  font-weight: 850;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 
 .history-item__details dd {
   margin: 0;
   color: var(--color-primary);
-  font-size: 0.88rem;
-  font-weight: 900;
+  font-size: 0.82rem;
+  font-weight: 820;
 }
 
 .history-item__description {
   margin: 0;
-  color: var(--color-muted);
-  font-size: 0.88rem;
-  line-height: 1.5;
+  color: var(--color-muted-strong);
+  font-size: 0.86rem;
+  line-height: 1.55;
 }
 
 .calculation-history__empty {
   padding: 20px;
-  border: 1px dashed rgba(22, 56, 50, 0.22);
-  border-radius: var(--radius-md);
-  background: rgba(255, 255, 255, 0.54);
+  border: 1px dashed rgba(20, 36, 31, 0.22);
+  border-radius: 4px;
+  background: rgba(255, 252, 246, 0.48);
 }
 
 .calculation-history__empty p {
   margin: 0;
-  color: var(--color-muted);
+  color: var(--color-muted-strong);
   line-height: 1.6;
 }
 
-@media (max-width: 960px) {
+@media (max-width: 1040px) {
   .calculation-history__list {
     grid-template-columns: 1fr 1fr;
   }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 680px) {
   .calculation-history {
     padding: 22px;
   }
@@ -299,6 +315,19 @@ function handleClearHistory() {
 
   .calculation-history__list {
     grid-template-columns: 1fr;
+  }
+
+  .history-item__details {
+    grid-template-columns: 1fr;
+  }
+
+  .history-item__details div {
+    border-right: 0;
+    border-bottom: 1px solid rgba(20, 36, 31, 0.08);
+  }
+
+  .history-item__details div:last-child {
+    border-bottom: 0;
   }
 }
 </style>

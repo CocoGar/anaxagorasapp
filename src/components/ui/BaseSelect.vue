@@ -70,48 +70,60 @@ defineEmits(['update:modelValue']);
 
 .base-select__label {
   color: var(--color-primary);
-  font-size: 0.88rem;
-  font-weight: 800;
+  font-size: 0.78rem;
+  font-weight: 850;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
 .base-select__control {
   width: 100%;
   min-height: 48px;
-  padding: 0 14px;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  background: #ffffff;
-  color: var(--color-text);
+  padding: 0 42px 0 14px;
+  border: 1px solid rgba(20, 36, 31, 0.16);
+  border-radius: 4px;
+  appearance: none;
+  background:
+    linear-gradient(45deg, transparent 50%, var(--color-primary) 50%) right 18px center / 7px 7px no-repeat,
+    linear-gradient(135deg, var(--color-primary) 50%, transparent 50%) right 12px center / 7px 7px no-repeat,
+    rgba(255, 252, 246, 0.78);
+  color: var(--color-primary);
   outline: none;
   transition:
     border-color 0.2s ease,
     box-shadow 0.2s ease,
-    background 0.2s ease;
+    background-color 0.2s ease;
+}
+
+.base-select__control:hover {
+  border-color: rgba(20, 36, 31, 0.26);
+  background-color: rgba(255, 252, 246, 0.94);
 }
 
 .base-select__control:focus {
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 4px rgba(22, 56, 50, 0.12);
+  border-color: rgba(183, 138, 82, 0.78);
+  background-color: var(--color-surface);
+  box-shadow: var(--shadow-focus);
 }
 
 .base-select__control--error {
-  border-color: rgba(180, 55, 55, 0.72);
-  background: rgba(180, 55, 55, 0.04);
+  border-color: rgba(185, 74, 66, 0.72);
+  background-color: var(--color-error-soft);
 }
 
 .base-select__control--error:focus {
-  border-color: rgba(180, 55, 55, 0.9);
-  box-shadow: 0 0 0 4px rgba(180, 55, 55, 0.12);
+  border-color: rgba(185, 74, 66, 0.9);
+  box-shadow: 0 0 0 4px rgba(185, 74, 66, 0.14);
 }
 
 .base-select__message {
   color: var(--color-muted);
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   line-height: 1.45;
 }
 
 .base-select__message--error {
-  color: #8f1f1f;
-  font-weight: 700;
+  color: var(--color-error);
+  font-weight: 780;
 }
 </style>
