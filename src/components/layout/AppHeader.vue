@@ -68,8 +68,8 @@ function handleNavigate(pageId) {
   position: sticky;
   top: 0;
   z-index: 20;
-  border-bottom: 1px solid rgba(20, 36, 31, 0.1);
-  background: rgba(255, 252, 246, 0.88);
+  border-bottom: 1px solid rgba(43, 41, 35, 0.12);
+  background: rgba(248, 242, 232, 0.82);
   backdrop-filter: blur(22px);
 }
 
@@ -77,7 +77,7 @@ function handleNavigate(pageId) {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  min-height: 76px;
+  min-height: 74px;
 }
 
 .app-header__brand {
@@ -100,22 +100,23 @@ function handleNavigate(pageId) {
 .app-header__mark {
   position: relative;
   display: grid;
-  width: 42px;
-  height: 42px;
+  width: 40px;
+  height: 40px;
   place-items: center;
-  border: 1px solid rgba(183, 138, 82, 0.58);
-  background: var(--color-primary);
-  color: var(--color-accent-muted);
-  font-size: 0.86rem;
-  font-weight: 900;
+  border: 1px solid rgba(169, 120, 73, 0.5);
+  background: rgba(43, 41, 35, 0.92);
+  color: #e7c89e;
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 600;
 }
 
 .app-header__mark::before,
 .app-header__mark::after {
   position: absolute;
-  width: 11px;
-  height: 11px;
-  border-color: rgba(214, 184, 134, 0.72);
+  width: 10px;
+  height: 10px;
+  border-color: rgba(231, 200, 158, 0.68);
   content: '';
 }
 
@@ -135,44 +136,45 @@ function handleNavigate(pageId) {
 
 .app-header__brand-text {
   display: grid;
-  gap: 2px;
+  gap: 1px;
   text-align: left;
 }
 
 .app-header__brand-text strong {
-  color: var(--color-primary);
-  font-size: 1rem;
-  font-weight: 850;
+  color: var(--color-heading);
+  font-family: var(--font-display);
+  font-size: 1.24rem;
+  font-weight: 500;
   letter-spacing: -0.02em;
 }
 
 .app-header__brand-text small {
   color: var(--color-muted);
-  font-size: 0.66rem;
-  font-weight: 760;
-  letter-spacing: 0.18em;
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.19em;
   text-transform: uppercase;
 }
 
 .app-header__nav {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   align-items: center;
-  padding: 5px;
-  border: 1px solid rgba(20, 36, 31, 0.1);
-  background: rgba(255, 252, 246, 0.58);
+  padding: 4px;
+  border: 1px solid rgba(43, 41, 35, 0.1);
+  background: rgba(248, 242, 232, 0.5);
 }
 
 .app-header__nav-link {
   position: relative;
-  min-height: 36px;
+  min-height: 34px;
   padding: 0 14px;
   border: 1px solid transparent;
   background: transparent;
   color: var(--color-muted);
-  font-size: 0.72rem;
-  font-weight: 850;
-  letter-spacing: 0.16em;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
   text-transform: uppercase;
   cursor: pointer;
   transition:
@@ -188,8 +190,8 @@ function handleNavigate(pageId) {
 }
 
 .app-header__nav-link--active {
-  border-color: rgba(183, 138, 82, 0.38);
-  background: rgba(183, 138, 82, 0.12);
+  border-color: rgba(169, 120, 73, 0.32);
+  background: rgba(169, 120, 73, 0.1);
   color: var(--color-primary);
 }
 

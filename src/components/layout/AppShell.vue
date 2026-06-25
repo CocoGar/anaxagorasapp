@@ -82,9 +82,9 @@ onUnmounted(() => {
   min-height: 100vh;
   overflow: hidden;
   background:
-    radial-gradient(circle at 10% 0%, rgba(183, 138, 82, 0.14), transparent 30rem),
-    radial-gradient(circle at 92% 8%, rgba(20, 36, 31, 0.1), transparent 36rem),
-    linear-gradient(135deg, #f3eee6 0%, #fffcf6 48%, #eef3ef 100%);
+    radial-gradient(circle at 10% 0%, rgba(255, 248, 235, 0.38), transparent 30rem),
+    radial-gradient(circle at 92% 8%, rgba(120, 84, 50, 0.12), transparent 36rem),
+    linear-gradient(135deg, #d8cdbd 0%, #eee6d9 46%, #f8f2e8 100%);
 }
 
 .app-shell::before {
@@ -93,10 +93,10 @@ onUnmounted(() => {
   z-index: -1;
   pointer-events: none;
   background-image:
-    linear-gradient(rgba(20, 36, 31, 0.034) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(20, 36, 31, 0.034) 1px, transparent 1px);
+    linear-gradient(rgba(43, 41, 35, 0.032) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(43, 41, 35, 0.032) 1px, transparent 1px);
   background-size: 64px 64px;
-  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.58), transparent 82%);
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.42), transparent 84%);
   content: '';
 }
 

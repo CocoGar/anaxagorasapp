@@ -33,16 +33,16 @@ defineProps({
 <style scoped>
 .base-button {
   display: inline-flex;
-  min-height: 44px;
+  min-height: 42px;
   align-items: center;
   justify-content: center;
-  padding: 0 24px;
+  padding: 0 22px;
   border: 1px solid transparent;
-  border-radius: 6px;
+  border-radius: 2px;
   font: inherit;
-  font-size: 0.78rem;
-  font-weight: 850;
-  letter-spacing: 0.1em;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.13em;
   line-height: 1;
   text-align: center;
   text-decoration: none;
@@ -82,25 +82,27 @@ defineProps({
 }
 
 .base-button--primary {
-  border-color: var(--color-primary);
-  background: var(--color-primary);
-  color: var(--color-surface);
-  box-shadow: 0 14px 30px rgba(20, 36, 31, 0.16);
+  border-color: var(--color-accent);
+  background: var(--color-accent);
+  color: #fff8ed;
+  box-shadow: 0 12px 26px rgba(85, 58, 34, 0.16);
 }
 
 .base-button--primary:hover:not(:disabled) {
-  box-shadow: 0 18px 42px rgba(20, 36, 31, 0.22);
+  border-color: var(--color-accent-strong);
+  background: var(--color-accent-strong);
+  box-shadow: 0 16px 34px rgba(85, 58, 34, 0.22);
 }
 
 .base-button--secondary {
-  border-color: rgba(20, 36, 31, 0.2);
-  background: rgba(255, 252, 246, 0.64);
+  border-color: rgba(43, 41, 35, 0.22);
+  background: rgba(248, 242, 232, 0.58);
   color: var(--color-primary);
 }
 
 .base-button--secondary:hover:not(:disabled) {
-  border-color: rgba(183, 138, 82, 0.58);
-  background: var(--color-surface);
+  border-color: var(--color-accent);
+  background: rgba(248, 242, 232, 0.94);
 }
 
 .base-button--ghost {
@@ -110,7 +112,7 @@ defineProps({
 }
 
 .base-button--ghost:hover:not(:disabled) {
-  border-color: rgba(20, 36, 31, 0.12);
-  background: rgba(20, 36, 31, 0.04);
+  border-color: rgba(43, 41, 35, 0.14);
+  background: rgba(248, 242, 232, 0.42);
 }
 </style>
