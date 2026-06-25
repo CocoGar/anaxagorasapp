@@ -1,23 +1,71 @@
 <script setup>
+import designBoardImage from '../assets/images/design-board.jpg';
+import methodMaterialsImage from '../assets/images/method-materials.jpg';
+import templateFacadeImage from '../assets/images/template-facade.jpg';
+import templateFurnitureImage from '../assets/images/template-furniture.jpg';
+import templateRoomImage from '../assets/images/template-room.jpg';
+
 import { DESIGN_TEMPLATES } from '../data/designTemplates';
 
 const designUses = [
   {
-    id: 'architecture',
+    id: 'arquitectura',
     title: 'Arquitectura',
     text: 'Estudia fachadas, ritmos, ejes, alturas y relaciones espaciales desde una medida proporcional.'
   },
   {
-    id: 'interior',
+    id: 'interiorismo',
     title: 'Interiorismo',
     text: 'Trabaja estancias, piezas y recorridos con una base medible, clara y conectada a la escala humana.'
   },
   {
-    id: 'presentation',
+    id: 'presentación',
     title: 'Presentación',
     text: 'Convierte el cálculo en material explicable: resultado, trazabilidad, retícula y lectura espacial.'
   }
 ];
+
+const templateImageMap = {
+  'free-composition': methodMaterialsImage,
+  facade: templateFacadeImage,
+  room: templateRoomImage,
+  furniture: templateFurnitureImage,
+  graphic: designBoardImage
+};
+
+const templateMetaMap = {
+  'free-composition': {
+    unit: 'Pie',
+    ratio: '3:2'
+  },
+  facade: {
+    unit: 'Pie',
+    ratio: '3:2'
+  },
+  room: {
+    unit: 'Codo',
+    ratio: '4:3'
+  },
+  furniture: {
+    unit: 'Palmo',
+    ratio: '5:4'
+  },
+  graphic: {
+    unit: 'Palmo',
+    ratio: '4:3'
+  }
+};
+
+function getTemplateImage(templateId) {
+  return templateImageMap[templateId] || methodMaterialsImage;
+}
+
+function getTemplateMeta(templateId) {
+  return templateMetaMap[templateId] || {
+    unit: 'Unidad base',
+    ratio: 'Proporción'
+  };
+}
 </script>
 
 <template>
@@ -26,8 +74,10 @@ const designUses = [
       <div>
         <p class="section-label">Diseño</p>
 
-        <h1 class="section-title">
-          Plantillas para interpretar la proporción como lenguaje visual.
+        <h1 class="design-view__title atelier-title">
+          <span>Plantillas para aplicar </span>
+          <span><em>proporción, escala</em></span>
+          <span> y armonía visual.</span>
         </h1>
 
         <p class="section-description">
@@ -37,20 +87,18 @@ const designUses = [
         </p>
       </div>
 
-      <aside class="design-view__cover" aria-label="Panel visual de diseño">
-        <div class="design-view__cover-board">
-          <span class="design-view__cover-title">Anaxágoras board</span>
-          <span class="design-view__cover-line design-view__cover-line--one"></span>
-          <span class="design-view__cover-line design-view__cover-line--two"></span>
-          <span class="design-view__cover-line design-view__cover-line--three"></span>
+      <aside class="design-view__cover" aria-label="Lámina editorial de diseño">
+        <figure class="design-view__cover-board">
+          <img
+            :src="designBoardImage"
+            alt="Lámina de presentación de diseño interior y arquitectura"
+          >
 
-          <div class="design-view__cover-plan">
-            <span></span>
-            <span></span>
-            <span></span>
-            <span></span>
-          </div>
-        </div>
+          <figcaption>
+            <span>Anaxágoras board</span>
+            <strong>Escala · proporción · composición</strong>
+          </figcaption>
+        </figure>
       </aside>
     </div>
 
@@ -66,21 +114,30 @@ const designUses = [
           :key="template.id"
           class="design-template"
         >
-          <span>{{ template.shortName }}</span>
-          <h3>{{ template.name }}</h3>
-          <p>{{ template.description }}</p>
+          <figure class="design-template__image">
+            <img
+              :src="getTemplateImage(template.id)"
+              :alt="`Referencia visual para la plantilla ${template.name}`"
+            >
+          </figure>
 
-          <dl>
-            <div>
-              <dt>Unidad sugerida</dt>
-              <dd>{{ template.recommendedUnitId }}</dd>
-            </div>
+          <div class="design-template__content">
+            <span>{{ template.shortName }}</span>
+            <h3>{{ template.name }}</h3>
+            <p>{{ template.description }}</p>
 
-            <div>
-              <dt>Relación sugerida</dt>
-              <dd>{{ template.recommendedRatioId }}</dd>
-            </div>
-          </dl>
+            <dl>
+              <div>
+                <dt>Unidad sugerida</dt>
+                <dd>{{ getTemplateMeta(template.id).unit }}</dd>
+              </div>
+
+              <div>
+                <dt>Relación sugerida</dt>
+                <dd>{{ getTemplateMeta(template.id).ratio }}</dd>
+              </div>
+            </dl>
+          </div>
         </article>
       </div>
     </section>
@@ -102,7 +159,7 @@ const designUses = [
 .design-view {
   position: relative;
   overflow: hidden;
-  padding: clamp(76px, 8vw, 118px) 0 96px;
+  padding: clamp(72px, 8vw, 112px) 0 96px;
 }
 
 .design-view::before {
@@ -110,10 +167,10 @@ const designUses = [
   inset: 0;
   pointer-events: none;
   background-image:
-    linear-gradient(rgba(20, 36, 31, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(20, 36, 31, 0.04) 1px, transparent 1px);
+    linear-gradient(rgba(47, 42, 35, 0.034) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(47, 42, 35, 0.034) 1px, transparent 1px);
   background-size: 64px 64px;
-  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.58), transparent 86%);
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.5), transparent 86%);
   content: '';
 }
 
@@ -121,32 +178,48 @@ const designUses = [
   position: relative;
   z-index: 1;
   display: grid;
-  grid-template-columns: minmax(0, 0.95fr) minmax(360px, 0.72fr);
+  grid-template-columns: minmax(0, 0.86fr) minmax(380px, 0.72fr);
   gap: clamp(48px, 6vw, 86px);
   align-items: center;
 }
 
-.design-view__cover {
-  position: relative;
+.design-view__title {
+  max-width: 700px;
+  color: var(--color-heading);
+  font-family: var(--font-display);
+  font-size: clamp(2.7rem, 4.4vw, 4.85rem);
+  font-weight: 400;
+  line-height: 1.03;
+  letter-spacing: -0.018em;
+}
+
+.design-view__title span {
+  display: block;
+}
+
+.design-view__title em {
+  color: var(--color-accent-strong);
+  font-style: italic;
+  font-weight: 400;
 }
 
 .design-view__cover-board {
   position: relative;
-  min-height: 480px;
-  border: 1px solid rgba(20, 36, 31, 0.14);
-  background:
-    linear-gradient(135deg, rgba(255, 252, 246, 0.88), rgba(255, 255, 255, 0.64)),
-    var(--color-surface);
-  box-shadow: var(--shadow-card-strong);
+  min-height: 520px;
+  margin: 0;
   overflow: hidden;
+  border: 1px solid rgba(47, 42, 35, 0.14);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card-strong);
 }
 
 .design-view__cover-board::before,
 .design-view__cover-board::after {
   position: absolute;
+  z-index: 2;
   width: 56px;
   height: 56px;
-  border-color: rgba(183, 138, 82, 0.42);
+  border-color: rgba(170, 123, 79, 0.46);
   content: '';
 }
 
@@ -164,82 +237,44 @@ const designUses = [
   border-bottom: 1px solid;
 }
 
-.design-view__cover-title {
+.design-view__cover-board img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 520px;
+  object-fit: cover;
+  filter: saturate(0.88) contrast(0.96);
+}
+
+.design-view__cover-board figcaption {
   position: absolute;
-  top: 34px;
-  left: 34px;
-  color: var(--color-accent-strong);
-  font-size: 0.7rem;
-  font-weight: 850;
+  right: 28px;
+  bottom: 28px;
+  left: 28px;
+  z-index: 3;
+  display: grid;
+  gap: 6px;
+  padding: 18px;
+  border: 1px solid rgba(248, 243, 234, 0.2);
+  background: rgba(47, 42, 35, 0.72);
+  color: var(--color-surface);
+  backdrop-filter: blur(14px);
+}
+
+.design-view__cover-board figcaption span {
+  color: var(--color-accent-muted);
+  font-size: 0.66rem;
+  font-weight: 700;
   letter-spacing: 0.2em;
   text-transform: uppercase;
 }
 
-.design-view__cover-line {
-  position: absolute;
-  height: 1px;
-  background: rgba(20, 36, 31, 0.16);
-}
-
-.design-view__cover-line--one {
-  top: 120px;
-  right: 32px;
-  left: 32px;
-}
-
-.design-view__cover-line--two {
-  top: 240px;
-  right: 32px;
-  left: 32px;
-}
-
-.design-view__cover-line--three {
-  top: 360px;
-  right: 32px;
-  left: 32px;
-}
-
-.design-view__cover-plan {
-  position: absolute;
-  right: 46px;
-  bottom: 48px;
-  width: 68%;
-  height: 52%;
-  border: 2px solid rgba(20, 36, 31, 0.58);
-}
-
-.design-view__cover-plan span {
-  position: absolute;
-  display: block;
-  border: 1px solid rgba(20, 36, 31, 0.32);
-}
-
-.design-view__cover-plan span:nth-child(1) {
-  top: 0;
-  left: 0;
-  width: 44%;
-  height: 48%;
-}
-
-.design-view__cover-plan span:nth-child(2) {
-  top: 0;
-  right: 0;
-  width: 56%;
-  height: 36%;
-}
-
-.design-view__cover-plan span:nth-child(3) {
-  bottom: 0;
-  left: 0;
-  width: 54%;
-  height: 52%;
-}
-
-.design-view__cover-plan span:nth-child(4) {
-  right: 0;
-  bottom: 0;
-  width: 46%;
-  height: 64%;
+.design-view__cover-board figcaption strong {
+  color: #fff8ed;
+  font-family: var(--font-display);
+  font-size: 1.55rem;
+  font-weight: 500;
+  line-height: 1.05;
 }
 
 .design-view__section-heading {
@@ -249,17 +284,17 @@ const designUses = [
   justify-content: space-between;
   margin-bottom: 28px;
   padding-bottom: 22px;
-  border-bottom: 1px solid rgba(20, 36, 31, 0.14);
+  border-bottom: 1px solid rgba(47, 42, 35, 0.14);
 }
 
 .design-view__section-heading h2 {
   max-width: 620px;
   color: var(--color-primary);
   font-family: var(--font-display);
-  font-size: clamp(2rem, 3.4vw, 3.4rem);
+  font-size: clamp(2.3rem, 3.5vw, 3.8rem);
   font-weight: 500;
-  line-height: 1.05;
-  letter-spacing: -0.045em;
+  line-height: 1.02;
+  letter-spacing: -0.025em;
 }
 
 .design-view__templates {
@@ -271,26 +306,51 @@ const designUses = [
 .design-view__template-grid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  border: 1px solid rgba(20, 36, 31, 0.14);
-  background: rgba(255, 252, 246, 0.48);
+  border: 1px solid rgba(47, 42, 35, 0.14);
+  background: rgba(248, 243, 234, 0.5);
 }
 
 .design-template {
   display: grid;
-  gap: 14px;
-  min-height: 300px;
-  padding: 26px;
-  border-right: 1px solid rgba(20, 36, 31, 0.12);
+  min-height: 430px;
+  border-right: 1px solid rgba(47, 42, 35, 0.12);
+  background: rgba(248, 243, 234, 0.48);
 }
 
 .design-template:last-child {
   border-right: 0;
 }
 
-.design-template > span {
+.design-template__image {
+  height: 170px;
+  margin: 0;
+  overflow: hidden;
+  border-bottom: 1px solid rgba(47, 42, 35, 0.12);
+}
+
+.design-template__image img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: saturate(0.88) contrast(0.96);
+  transition: transform 0.3s ease;
+}
+
+.design-template:hover .design-template__image img {
+  transform: scale(1.035);
+}
+
+.design-template__content {
+  display: grid;
+  gap: 14px;
+  padding: 24px;
+}
+
+.design-template__content > span {
   color: var(--color-accent-strong);
-  font-size: 0.68rem;
-  font-weight: 850;
+  font-size: 0.66rem;
+  font-weight: 700;
   letter-spacing: 0.18em;
   text-transform: uppercase;
 }
@@ -301,7 +361,7 @@ const designUses = [
   font-size: 1.75rem;
   font-weight: 500;
   line-height: 1.05;
-  letter-spacing: -0.04em;
+  letter-spacing: -0.025em;
 }
 
 .design-template p {
@@ -315,10 +375,10 @@ const designUses = [
   gap: 10px;
   margin-top: auto;
   padding-top: 16px;
-  border-top: 1px solid rgba(20, 36, 31, 0.1);
+  border-top: 1px solid rgba(47, 42, 35, 0.1);
 }
 
-.design-template div {
+.design-template div:not(.design-template__content) {
   display: flex;
   gap: 12px;
   justify-content: space-between;
@@ -326,8 +386,8 @@ const designUses = [
 
 .design-template dt {
   color: var(--color-muted);
-  font-size: 0.68rem;
-  font-weight: 850;
+  font-size: 0.66rem;
+  font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
@@ -335,7 +395,7 @@ const designUses = [
 .design-template dd {
   color: var(--color-primary);
   font-size: 0.78rem;
-  font-weight: 850;
+  font-weight: 700;
   text-transform: uppercase;
 }
 
@@ -345,8 +405,8 @@ const designUses = [
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   margin-top: 34px;
-  border-top: 1px solid rgba(20, 36, 31, 0.14);
-  border-bottom: 1px solid rgba(20, 36, 31, 0.14);
+  border-top: 1px solid rgba(47, 42, 35, 0.14);
+  border-bottom: 1px solid rgba(47, 42, 35, 0.14);
 }
 
 .design-view__uses article {
@@ -354,7 +414,7 @@ const designUses = [
   gap: 12px;
   min-height: 190px;
   padding: 30px;
-  border-right: 1px solid rgba(20, 36, 31, 0.12);
+  border-right: 1px solid rgba(47, 42, 35, 0.12);
 }
 
 .design-view__uses article:last-child {
@@ -363,8 +423,8 @@ const designUses = [
 
 .design-view__uses span {
   color: var(--color-accent-strong);
-  font-size: 0.68rem;
-  font-weight: 850;
+  font-size: 0.66rem;
+  font-weight: 700;
   letter-spacing: 0.18em;
   text-transform: uppercase;
 }
@@ -372,7 +432,7 @@ const designUses = [
 .design-view__uses h3 {
   color: var(--color-primary);
   font-size: 1rem;
-  font-weight: 850;
+  font-weight: 700;
 }
 
 .design-view__uses p {
@@ -387,7 +447,7 @@ const designUses = [
   }
 
   .design-template {
-    border-bottom: 1px solid rgba(20, 36, 31, 0.12);
+    border-bottom: 1px solid rgba(47, 42, 35, 0.12);
   }
 
   .design-template:nth-child(2n) {
@@ -403,7 +463,7 @@ const designUses = [
 
   .design-view__uses article {
     border-right: 0;
-    border-bottom: 1px solid rgba(20, 36, 31, 0.12);
+    border-bottom: 1px solid rgba(47, 42, 35, 0.12);
   }
 
   .design-view__uses article:last-child {
@@ -416,7 +476,13 @@ const designUses = [
     padding: 56px 0 70px;
   }
 
-  .design-view__cover-board {
+  .design-view__title {
+    font-size: clamp(2.15rem, 9vw, 3.25rem);
+    line-height: 1.06;
+  }
+
+  .design-view__cover-board,
+  .design-view__cover-board img {
     min-height: 360px;
   }
 

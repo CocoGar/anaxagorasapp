@@ -183,8 +183,9 @@ function clearHistory() {
       <div class="calculator-view__content">
         <p class="section-label">Calculadora</p>
 
-        <h2 class="calculator-view__title">
-          Calcula una proporción desde una unidad humana.
+        <h2 class="calculator-view__title atelier-title">
+          <span>Calcula proporciones</span>
+          <span><em>desde una unidad humana.</em></span>
         </h2>
 
         <p class="section-description calculator-view__description">
@@ -482,10 +483,20 @@ function clearHistory() {
   max-width: 700px;
   color: var(--color-heading);
   font-family: var(--font-display);
-  font-size: clamp(2.9rem, 5.2vw, 5.8rem);
-  font-weight: 500;
-  line-height: 0.96;
-  letter-spacing: -0.055em;
+  font-size: clamp(2.7rem, 4.4vw, 4.85rem);
+  font-weight: 400;
+  line-height: 1.03;
+  letter-spacing: -0.018em;
+}
+
+.calculator-view__title span {
+  display: block;
+}
+
+.calculator-view__title em {
+  color: var(--color-accent-strong);
+  font-style: italic;
+  font-weight: 400;
 }
 
 .calculator-view__description {
@@ -505,7 +516,7 @@ function clearHistory() {
 .calculator-view__hint-index {
   color: var(--color-accent-strong);
   font-size: 0.72rem;
-  font-weight: 850;
+  font-weight: 700;
   letter-spacing: 0.22em;
   text-transform: uppercase;
 }
@@ -518,7 +529,7 @@ function clearHistory() {
 
 .calculator-view__hint strong {
   color: var(--color-primary);
-  font-weight: 850;
+  font-weight: 700;
 }
 
 .template-info {
@@ -595,7 +606,7 @@ function clearHistory() {
 .calculator-form__header h3 {
   color: var(--color-primary);
   font-size: 1rem;
-  font-weight: 850;
+  font-weight: 700;
   letter-spacing: -0.02em;
 }
 
@@ -645,8 +656,8 @@ function clearHistory() {
 .live-summary__label {
   color: var(--color-accent-strong);
   font-size: 0.68rem;
-  font-weight: 850;
-  letter-spacing: 0.2em;
+  font-weight: 700;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
 }
 
@@ -657,7 +668,7 @@ function clearHistory() {
 
 .live-summary strong {
   color: var(--color-primary);
-  font-weight: 850;
+  font-weight: 700;
 }
 
 .result-panel {
@@ -683,8 +694,8 @@ function clearHistory() {
 .result-panel__label {
   color: rgba(255, 252, 246, 0.68);
   font-size: 0.68rem;
-  font-weight: 850;
-  letter-spacing: 0.2em;
+  font-weight: 700;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
 }
 
@@ -722,7 +733,7 @@ function clearHistory() {
   color: rgba(255, 252, 246, 0.54);
   font-size: 0.7rem;
   font-weight: 800;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 
@@ -753,8 +764,8 @@ function clearHistory() {
   margin: 0 0 10px;
   color: var(--color-accent-strong);
   font-size: 0.72rem;
-  font-weight: 850;
-  letter-spacing: 0.2em;
+  font-weight: 700;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
 }
 
@@ -794,7 +805,7 @@ function clearHistory() {
   color: var(--color-muted-strong);
   font: inherit;
   font-size: 0.72rem;
-  font-weight: 850;
+  font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   cursor: pointer;
@@ -841,7 +852,8 @@ function clearHistory() {
   }
 
   .calculator-view__title {
-    font-size: clamp(2.55rem, 12vw, 4.1rem);
+    font-size: clamp(2.15rem, 9vw, 3.25rem);
+    line-height: 1.06;
   }
 
   .template-info__top,
