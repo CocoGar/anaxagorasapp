@@ -8,14 +8,24 @@ import {
 
 import { formatCentimeters } from '../utils/numberFormat';
 
+const emit = defineEmits(['navigate']);
+
 const anthropometricUnits = getAnthropometricUnits();
+
+function navigateToCalculator() {
+  emit('navigate', 'calculator');
+}
+
+function navigateToDesign() {
+  emit('navigate', 'design');
+}
 </script>
 
 <template>
-  <section id="method" class="home-view">
+  <section class="home-view">
     <div class="home-view__background" aria-hidden="true"></div>
 
-    <div class="page-container home-view__grid">
+    <div class="page-container home-view__hero">
       <div class="home-view__content">
         <p class="section-label">Método Anaxágoras</p>
 
@@ -30,13 +40,17 @@ const anthropometricUnits = getAnthropometricUnits();
         </p>
 
         <div class="home-view__actions">
-          <a href="#calculator">
-            <BaseButton>Iniciar cálculo</BaseButton>
-          </a>
+          <BaseButton type="button" @click="navigateToCalculator">
+            Iniciar cálculo
+          </BaseButton>
 
-          <a href="#design">
-            <BaseButton variant="secondary">Explorar sistema</BaseButton>
-          </a>
+          <BaseButton
+            type="button"
+            variant="secondary"
+            @click="navigateToDesign"
+          >
+            Explorar diseño
+          </BaseButton>
         </div>
       </div>
 
@@ -67,37 +81,52 @@ const anthropometricUnits = getAnthropometricUnits();
       </aside>
     </div>
 
-    <div class="page-container home-view__lower">
-      <section class="home-view__principles" aria-label="Principios del sistema">
+    <section class="page-container home-view__method" aria-label="Explicación del método">
+      <div class="home-view__method-heading">
+        <p class="section-label">Cómo funciona</p>
+
+        <h2>
+          Un sistema claro para pasar de una medida humana a una decisión de diseño.
+        </h2>
+      </div>
+
+      <div class="home-view__method-grid">
         <article>
           <span>01</span>
-          <strong>Escala humana</strong>
+          <h3>Escala humana</h3>
           <p>
-            Unidades derivadas desde una altura base para mantener una referencia
-            física y comprensible.
+            El sistema parte de una altura de referencia y deriva unidades
+            antropométricas como pulgada, palmo, pie y codo.
           </p>
         </article>
 
         <article>
           <span>02</span>
-          <strong>Relaciones musicales</strong>
+          <h3>Relación musical</h3>
           <p>
-            Proporciones como 3:2, 4:3, 5:4 o 2:1 aplicadas como multiplicadores
-            de diseño.
+            La medida base se transforma mediante proporciones armónicas como
+            5:4, 4:3, 3:2 o 2:1.
           </p>
         </article>
 
         <article>
           <span>03</span>
-          <strong>Lectura espacial</strong>
+          <h3>Interpretación visual</h3>
           <p>
-            Resultado interpretable mediante retícula 2D y visualización técnica
-            3D.
+            El resultado se puede leer como retícula 2D o como escena espacial
+            3D vinculada a una plantilla de diseño.
           </p>
         </article>
-      </section>
+      </div>
+    </section>
 
-      <section class="home-view__units" aria-label="Unidades antropométricas">
+    <section class="page-container home-view__board" aria-label="Unidades base del sistema">
+      <div class="home-view__board-title">
+        <span>Base antropométrica</span>
+        <strong>h = {{ formatCentimeters(DEFAULT_HUMAN_HEIGHT_CM) }}</strong>
+      </div>
+
+      <div class="home-view__units">
         <div
           v-for="unit in anthropometricUnits"
           :key="unit.id"
@@ -106,8 +135,8 @@ const anthropometricUnits = getAnthropometricUnits();
           <span>{{ unit.name }}</span>
           <strong>{{ formatCentimeters(unit.valueCm) }}</strong>
         </div>
-      </section>
-    </div>
+      </div>
+    </section>
   </section>
 </template>
 
@@ -115,7 +144,7 @@ const anthropometricUnits = getAnthropometricUnits();
 .home-view {
   position: relative;
   overflow: hidden;
-  padding: clamp(76px, 8vw, 118px) 0 86px;
+  padding: clamp(76px, 8vw, 118px) 0 96px;
   background: transparent;
 }
 
@@ -137,21 +166,7 @@ const anthropometricUnits = getAnthropometricUnits();
   content: '';
 }
 
-.home-view__background::after {
-  position: absolute;
-  top: 16%;
-  right: 8%;
-  width: 34rem;
-  height: 34rem;
-  border: 1px solid rgba(183, 138, 82, 0.16);
-  border-radius: 50%;
-  box-shadow:
-    0 0 0 92px rgba(20, 36, 31, 0.025),
-    0 0 0 164px rgba(183, 138, 82, 0.025);
-  content: '';
-}
-
-.home-view__grid {
+.home-view__hero {
   position: relative;
   z-index: 1;
   display: grid;
@@ -170,10 +185,6 @@ const anthropometricUnits = getAnthropometricUnits();
   flex-wrap: wrap;
   gap: 12px;
   margin-top: 36px;
-}
-
-.home-view__visual {
-  position: relative;
 }
 
 .home-view__render {
@@ -339,100 +350,153 @@ const anthropometricUnits = getAnthropometricUnits();
   font-size: 0.88rem;
 }
 
-.home-view__lower {
+.home-view__method {
   position: relative;
   z-index: 1;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(280px, 0.36fr);
-  gap: 28px;
-  margin-top: 76px;
-}
-
-.home-view__principles {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: minmax(280px, 0.72fr) minmax(0, 1fr);
+  gap: clamp(36px, 5vw, 76px);
+  margin-top: clamp(76px, 8vw, 112px);
+  padding: clamp(42px, 5vw, 64px) 0;
   border-top: 1px solid rgba(20, 36, 31, 0.14);
   border-bottom: 1px solid rgba(20, 36, 31, 0.14);
 }
 
-.home-view__principles article {
+.home-view__method-heading h2 {
+  max-width: 520px;
+  color: var(--color-primary);
+  font-family: var(--font-display);
+  font-size: clamp(2.1rem, 3.4vw, 3.6rem);
+  font-weight: 500;
+  line-height: 1.05;
+  letter-spacing: -0.045em;
+}
+
+.home-view__method-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+}
+
+.home-view__method-grid article {
   display: grid;
   gap: 12px;
-  min-height: 176px;
-  padding: 28px;
-  border-right: 1px solid rgba(20, 36, 31, 0.12);
+  padding: 0 24px;
+  border-left: 1px solid rgba(20, 36, 31, 0.12);
 }
 
-.home-view__principles article:last-child {
-  border-right: 0;
-}
-
-.home-view__principles span {
+.home-view__method-grid span {
   color: var(--color-accent-strong);
   font-family: var(--font-display);
-  font-size: 1.35rem;
+  font-size: 1.45rem;
 }
 
-.home-view__principles strong {
+.home-view__method-grid h3 {
   color: var(--color-primary);
   font-size: 1rem;
   font-weight: 850;
   letter-spacing: -0.02em;
 }
 
-.home-view__principles p {
+.home-view__method-grid p {
   color: var(--color-muted-strong);
-  font-size: 0.9rem;
-  line-height: 1.7;
+  font-size: 0.92rem;
+  line-height: 1.75;
+}
+
+.home-view__board {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(240px, 0.4fr) minmax(0, 1fr);
+  margin-top: 34px;
+  border: 1px solid rgba(20, 36, 31, 0.14);
+  background: rgba(255, 252, 246, 0.56);
+}
+
+.home-view__board-title {
+  display: grid;
+  align-content: center;
+  gap: 8px;
+  padding: 26px 30px;
+  border-right: 1px solid rgba(20, 36, 31, 0.12);
+}
+
+.home-view__board-title span {
+  color: var(--color-accent-strong);
+  font-size: 0.72rem;
+  font-weight: 850;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.home-view__board-title strong {
+  color: var(--color-primary);
+  font-family: var(--font-display);
+  font-size: 2.25rem;
+  font-weight: 500;
+  letter-spacing: -0.04em;
 }
 
 .home-view__units {
   display: grid;
-  padding: 18px 24px;
-  border: 1px solid rgba(20, 36, 31, 0.14);
-  background: rgba(255, 252, 246, 0.54);
+  grid-template-columns: repeat(4, 1fr);
 }
 
 .home-view__unit {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  min-height: 42px;
-  border-bottom: 1px solid rgba(20, 36, 31, 0.1);
+  display: grid;
+  gap: 4px;
+  padding: 26px 22px;
+  border-right: 1px solid rgba(20, 36, 31, 0.1);
 }
 
 .home-view__unit:last-child {
-  border-bottom: 0;
+  border-right: 0;
 }
 
 .home-view__unit span {
   color: var(--color-muted);
-  font-size: 0.86rem;
+  font-size: 0.84rem;
 }
 
 .home-view__unit strong {
   color: var(--color-primary);
-  font-size: 0.9rem;
+  font-size: 1rem;
   font-weight: 850;
 }
 
 @media (max-width: 1080px) {
-  .home-view__grid,
-  .home-view__lower {
+  .home-view__hero,
+  .home-view__method,
+  .home-view__board {
     grid-template-columns: 1fr;
   }
 
-  .home-view__principles {
+  .home-view__method-grid {
     grid-template-columns: 1fr;
   }
 
-  .home-view__principles article {
+  .home-view__method-grid article {
+    padding: 22px 0;
+    border-top: 1px solid rgba(20, 36, 31, 0.12);
+    border-left: 0;
+  }
+
+  .home-view__board-title {
     border-right: 0;
     border-bottom: 1px solid rgba(20, 36, 31, 0.12);
   }
 
-  .home-view__principles article:last-child {
-    border-bottom: 0;
+  .home-view__units {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .home-view__unit:nth-child(2) {
+    border-right: 0;
+  }
+
+  .home-view__unit:nth-child(-n + 2) {
+    border-bottom: 1px solid rgba(20, 36, 31, 0.1);
   }
 }
 
@@ -456,12 +520,17 @@ const anthropometricUnits = getAnthropometricUnits();
     font-size: 1.95rem;
   }
 
-  .home-view__principles article {
-    padding: 24px 0;
+  .home-view__units {
+    grid-template-columns: 1fr;
   }
 
-  .home-view__principles {
-    padding-inline: 0;
+  .home-view__unit {
+    border-right: 0;
+    border-bottom: 1px solid rgba(20, 36, 31, 0.1);
+  }
+
+  .home-view__unit:last-child {
+    border-bottom: 0;
   }
 }
 </style>

@@ -1,7 +1,26 @@
+<script setup>
+defineProps({
+  activePage: {
+    type: String,
+    default: 'home'
+  }
+});
+
+const emit = defineEmits(['navigate']);
+
+function handleNavigate(pageId) {
+  emit('navigate', pageId);
+}
+</script>
+
 <template>
   <header class="app-header">
     <div class="page-container app-header__content">
-      <a class="app-header__brand" href="#">
+      <button
+        class="app-header__brand"
+        type="button"
+        @click="handleNavigate('home')"
+      >
         <span class="app-header__mark">
           <span>A</span>
         </span>
@@ -10,12 +29,35 @@
           <strong>Anaxágoras</strong>
           <small>Sistema proporcional</small>
         </span>
-      </a>
+      </button>
 
       <nav class="app-header__nav" aria-label="Navegación principal">
-        <a href="#method">Método</a>
-        <a href="#calculator">Calculadora</a>
-        <a href="#design">Diseño</a>
+        <button
+          type="button"
+          :class="{ 'app-header__nav-link--active': activePage === 'home' }"
+          class="app-header__nav-link"
+          @click="handleNavigate('home')"
+        >
+          Home
+        </button>
+
+        <button
+          type="button"
+          :class="{ 'app-header__nav-link--active': activePage === 'calculator' }"
+          class="app-header__nav-link"
+          @click="handleNavigate('calculator')"
+        >
+          Calculadora
+        </button>
+
+        <button
+          type="button"
+          :class="{ 'app-header__nav-link--active': activePage === 'design' }"
+          class="app-header__nav-link"
+          @click="handleNavigate('design')"
+        >
+          Diseño
+        </button>
       </nav>
     </div>
   </header>
@@ -27,7 +69,7 @@
   top: 0;
   z-index: 20;
   border-bottom: 1px solid rgba(20, 36, 31, 0.1);
-  background: rgba(255, 252, 246, 0.86);
+  background: rgba(255, 252, 246, 0.88);
   backdrop-filter: blur(22px);
 }
 
@@ -42,7 +84,17 @@
   display: inline-flex;
   gap: 14px;
   align-items: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
   color: var(--color-primary);
+  cursor: pointer;
+}
+
+.app-header__brand:focus-visible,
+.app-header__nav-link:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-focus);
 }
 
 .app-header__mark {
@@ -84,6 +136,7 @@
 .app-header__brand-text {
   display: grid;
   gap: 2px;
+  text-align: left;
 }
 
 .app-header__brand-text strong {
@@ -103,59 +156,59 @@
 
 .app-header__nav {
   display: flex;
-  gap: 34px;
+  gap: 8px;
   align-items: center;
+  padding: 5px;
+  border: 1px solid rgba(20, 36, 31, 0.1);
+  background: rgba(255, 252, 246, 0.58);
 }
 
-.app-header__nav a {
+.app-header__nav-link {
   position: relative;
+  min-height: 36px;
+  padding: 0 14px;
+  border: 1px solid transparent;
+  background: transparent;
   color: var(--color-muted);
   font-size: 0.72rem;
   font-weight: 850;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
+  cursor: pointer;
   transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
     color 0.2s ease,
     transform 0.2s ease;
 }
 
-.app-header__nav a::after {
-  position: absolute;
-  right: 0;
-  bottom: -10px;
-  left: 0;
-  height: 1px;
-  background: var(--color-accent);
-  opacity: 0;
-  transform: scaleX(0.35);
-  transform-origin: center;
-  transition:
-    opacity 0.2s ease,
-    transform 0.2s ease;
-  content: '';
-}
-
-.app-header__nav a:hover {
+.app-header__nav-link:hover {
   transform: translateY(-1px);
   color: var(--color-primary);
 }
 
-.app-header__nav a:hover::after {
-  opacity: 1;
-  transform: scaleX(1);
+.app-header__nav-link--active {
+  border-color: rgba(183, 138, 82, 0.38);
+  background: rgba(183, 138, 82, 0.12);
+  color: var(--color-primary);
 }
 
 @media (max-width: 760px) {
   .app-header__content {
-    min-height: 70px;
-  }
-
-  .app-header__brand-text small {
-    display: none;
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 14px;
+    padding: 14px 0;
   }
 
   .app-header__nav {
-    display: none;
+    width: 100%;
+    overflow-x: auto;
+  }
+
+  .app-header__nav-link {
+    flex: 1;
+    min-width: fit-content;
   }
 }
 </style>
