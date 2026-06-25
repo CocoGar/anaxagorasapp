@@ -158,7 +158,10 @@ function calculateResult() {
   }
 
   const result = {
-    ...calculateAnaxagorasProportion(normalizedForm.value),
+    ...calculateAnaxagorasProportion({
+      ...normalizedForm.value,
+      designTemplateId: designTemplateId.value
+    }),
     heightCm: normalizedForm.value.heightCm,
     anthropometricUnit: selectedAnthropometricUnit.value,
     designTemplate: selectedDesignTemplate.value
@@ -184,24 +187,29 @@ function clearHistory() {
           Calcula una proporción desde una unidad humana.
         </h2>
 
-        <p class="section-description">
-          Introduce una altura humana de referencia, elige una unidad antropométrica
-          y aplica una relación musical para obtener una medida proporcional útil
-          para diseño.
+        <p class="section-description calculator-view__description">
+          Introduce una altura de referencia, selecciona una unidad corporal y aplica
+          una relación musical para obtener una medida útil, trazable y visualmente
+          interpretable.
         </p>
 
         <div class="calculator-view__hint">
-          <span class="calculator-view__hint-mark">↳</span>
+          <span class="calculator-view__hint-index">Ejemplo</span>
+
           <p>
-            Ejemplo recomendado: 10 pies Anaxágoras con relación Do-Sol 3:2.
-            El resultado debe ser 414 cm, es decir, 4,14 m.
+            10 pies Anaxágoras con relación Do-Sol 3:2 generan
+            <strong>414 cm</strong>, es decir, <strong>4,14 m</strong>.
           </p>
         </div>
 
         <div class="template-info">
-          <BaseBadge tone="accent">
-            {{ selectedDesignTemplate.shortName }}
-          </BaseBadge>
+          <div class="template-info__top">
+            <BaseBadge tone="accent">
+              {{ selectedDesignTemplate.shortName }}
+            </BaseBadge>
+
+            <span>Plantilla activa</span>
+          </div>
 
           <h3>{{ selectedDesignTemplate.name }}</h3>
 
@@ -213,12 +221,21 @@ function clearHistory() {
 
       <BaseCard class="calculator-view__card">
         <form class="calculator-form" novalidate @submit.prevent="calculateResult">
+          <div class="calculator-form__header">
+            <span>01</span>
+
+            <div>
+              <h3>Parámetros de cálculo</h3>
+              <p>Define la base humana, la unidad y la proporción musical.</p>
+            </div>
+          </div>
+
           <BaseSelect
             id="designTemplateId"
             v-model="designTemplateId"
             label="Plantilla de diseño"
             :options="designTemplateOptions"
-            helper-text="Elige el contexto de aplicación del cálculo."
+            helper-text="Contexto desde el que se interpreta el resultado."
           />
 
           <BaseButton
@@ -226,30 +243,32 @@ function clearHistory() {
             variant="secondary"
             @click="applyTemplateRecommendations"
           >
-            Aplicar recomendación de plantilla
+            Aplicar recomendación
           </BaseButton>
 
-          <BaseInput
-            id="heightCm"
-            v-model="heightCm"
-            label="Altura humana base"
-            type="text"
-            input-mode="decimal"
-            placeholder="165,6"
-            helper-text="Puedes usar coma o punto decimal."
-            :error-message="getFieldError('heightCm')"
-          />
+          <div class="calculator-form__split">
+            <BaseInput
+              id="heightCm"
+              v-model="heightCm"
+              label="Altura humana base"
+              type="text"
+              input-mode="decimal"
+              placeholder="165,6"
+              helper-text="Puedes usar coma o punto decimal."
+              :error-message="getFieldError('heightCm')"
+            />
 
-          <BaseInput
-            id="quantity"
-            v-model="quantity"
-            label="Cantidad de unidades"
-            type="text"
-            input-mode="decimal"
-            placeholder="10"
-            helper-text="Ejemplo: 10 pies, 4 codos o 24 palmos."
-            :error-message="getFieldError('quantity')"
-          />
+            <BaseInput
+              id="quantity"
+              v-model="quantity"
+              label="Cantidad de unidades"
+              type="text"
+              input-mode="decimal"
+              placeholder="10"
+              helper-text="Ejemplo: 10 pies, 4 codos o 24 palmos."
+              :error-message="getFieldError('quantity')"
+            />
+          </div>
 
           <BaseSelect
             id="anthropometricUnitId"
@@ -362,11 +381,13 @@ function clearHistory() {
       <div class="calculator-view__visual-header">
         <div>
           <p class="calculator-view__visual-label">Representación del resultado</p>
+
           <h3 class="calculator-view__visual-title">
             Visualización proporcional
           </h3>
+
           <p class="calculator-view__visual-description">
-            Puedes alternar entre la vista espacial 3D y la retícula 2D sin perder el cálculo actual.
+            Alterna entre escena 3D técnica y retícula 2D manteniendo el cálculo actual.
           </p>
         </div>
 
@@ -377,7 +398,7 @@ function clearHistory() {
             :class="{ 'calculator-view__visual-switch-button--active': visualMode === '3d' }"
             @click="visualMode = '3d'"
           >
-            Vista 3D técnica
+            Vista 3D
           </button>
 
           <button
@@ -423,80 +444,132 @@ function clearHistory() {
 
 <style scoped>
 .calculator-view {
-  padding: 96px 0;
+  position: relative;
+  padding: clamp(76px, 8vw, 118px) 0 96px;
+  background:
+    linear-gradient(180deg, rgba(255, 252, 246, 0.46), rgba(243, 238, 230, 0.86));
+}
+
+.calculator-view::before {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(20, 36, 31, 0.036) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(20, 36, 31, 0.036) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.45), transparent 80%);
+  content: '';
 }
 
 .calculator-view__grid {
+  position: relative;
+  z-index: 1;
   display: grid;
-  grid-template-columns: minmax(0, 0.9fr) minmax(340px, 0.9fr);
-  gap: 48px;
+  grid-template-columns: minmax(0, 0.82fr) minmax(380px, 0.86fr);
+  gap: clamp(42px, 6vw, 82px);
   align-items: start;
 }
 
+.calculator-view__content {
+  position: sticky;
+  top: 112px;
+  display: grid;
+  align-content: start;
+}
+
 .calculator-view__title {
-  max-width: 720px;
-  margin: 0;
-  color: var(--color-primary);
-  font-size: clamp(2rem, 4vw, 4.4rem);
-  line-height: 0.98;
-  letter-spacing: -0.06em;
+  max-width: 700px;
+  color: var(--color-heading);
+  font-family: var(--font-display);
+  font-size: clamp(2.9rem, 5.2vw, 5.8rem);
+  font-weight: 500;
+  line-height: 0.96;
+  letter-spacing: -0.055em;
+}
+
+.calculator-view__description {
+  max-width: 640px;
 }
 
 .calculator-view__hint {
-  display: flex;
-  gap: 12px;
+  display: grid;
+  gap: 10px;
   max-width: 620px;
-  margin-top: 28px;
-  padding: 18px 20px;
-  border: 1px solid rgba(200, 155, 60, 0.28);
-  border-radius: var(--radius-md);
-  background: rgba(200, 155, 60, 0.08);
+  margin-top: 34px;
+  padding: 22px 0;
+  border-top: 1px solid rgba(20, 36, 31, 0.14);
+  border-bottom: 1px solid rgba(20, 36, 31, 0.14);
 }
 
-.calculator-view__hint-mark {
-  color: var(--color-accent);
-  font-size: 1.4rem;
-  font-weight: 900;
+.calculator-view__hint-index {
+  color: var(--color-accent-strong);
+  font-size: 0.72rem;
+  font-weight: 850;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
 }
 
 .calculator-view__hint p {
-  margin: 0;
-  color: var(--color-primary);
+  color: var(--color-muted-strong);
   font-size: 0.98rem;
-  font-weight: 700;
-  line-height: 1.6;
+  line-height: 1.75;
+}
+
+.calculator-view__hint strong {
+  color: var(--color-primary);
+  font-weight: 850;
 }
 
 .template-info {
   display: grid;
-  gap: 12px;
+  gap: 14px;
   max-width: 620px;
-  margin-top: 28px;
-  padding: 22px;
-  border: 1px solid rgba(22, 56, 50, 0.1);
-  border-radius: var(--radius-lg);
-  background: rgba(255, 255, 255, 0.58);
+  margin-top: 30px;
+  padding: 24px;
+  border: 1px solid rgba(20, 36, 31, 0.13);
+  border-radius: 4px;
+  background: rgba(255, 252, 246, 0.64);
   box-shadow: var(--shadow-card);
   backdrop-filter: blur(18px);
 }
 
+.template-info__top {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.template-info__top span {
+  color: var(--color-muted);
+  font-size: 0.72rem;
+  font-weight: 780;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
 .template-info h3 {
-  margin: 0;
   color: var(--color-primary);
-  font-size: 1.45rem;
-  letter-spacing: -0.04em;
+  font-family: var(--font-display);
+  font-size: clamp(1.55rem, 2vw, 2rem);
+  font-weight: 500;
+  line-height: 1.1;
+  letter-spacing: -0.035em;
 }
 
 .template-info p {
-  margin: 0;
-  color: var(--color-muted);
-  line-height: 1.7;
+  color: var(--color-muted-strong);
+  line-height: 1.75;
 }
 
 .calculator-view__card {
   display: grid;
   gap: 28px;
-  padding: 28px;
+  padding: clamp(24px, 3vw, 34px);
+  border-radius: 4px;
+  background:
+    linear-gradient(145deg, rgba(255, 252, 246, 0.92), rgba(255, 255, 255, 0.78));
 }
 
 .calculator-form {
@@ -504,62 +577,100 @@ function clearHistory() {
   gap: 18px;
 }
 
+.calculator-form__header {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  padding-bottom: 22px;
+  border-bottom: 1px solid rgba(20, 36, 31, 0.12);
+}
+
+.calculator-form__header span {
+  color: var(--color-accent-strong);
+  font-family: var(--font-display);
+  font-size: 1.45rem;
+  line-height: 1;
+}
+
+.calculator-form__header h3 {
+  color: var(--color-primary);
+  font-size: 1rem;
+  font-weight: 850;
+  letter-spacing: -0.02em;
+}
+
+.calculator-form__header p {
+  margin-top: 4px;
+  color: var(--color-muted);
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+.calculator-form__split {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
 .calculator-form__error {
   margin: 0;
   padding: 14px 16px;
-  border: 1px solid rgba(180, 55, 55, 0.24);
+  border: 1px solid rgba(185, 74, 66, 0.28);
   border-radius: var(--radius-sm);
-  background: rgba(180, 55, 55, 0.08);
-  color: #8f1f1f;
-  font-weight: 700;
+  background: var(--color-error-soft);
+  color: var(--color-error);
+  font-weight: 760;
   line-height: 1.5;
 }
 
 .live-summary {
   display: grid;
-  gap: 8px;
+  gap: 10px;
   padding: 18px;
-  border: 1px solid rgba(22, 56, 50, 0.12);
-  border-radius: var(--radius-md);
-  background: rgba(217, 231, 223, 0.45);
+  border: 1px solid rgba(20, 36, 31, 0.12);
+  border-radius: 4px;
+  background:
+    linear-gradient(135deg, rgba(20, 36, 31, 0.05), rgba(183, 138, 82, 0.07)),
+    rgba(255, 252, 246, 0.66);
   transition:
     opacity 0.2s ease,
     background 0.2s ease;
 }
 
 .live-summary--disabled {
-  opacity: 0.74;
-  background: rgba(255, 255, 255, 0.58);
+  opacity: 0.72;
+  background: rgba(255, 252, 246, 0.58);
 }
 
 .live-summary__label {
-  margin: 0;
-  color: var(--color-accent);
-  font-size: 0.72rem;
-  font-weight: 900;
-  letter-spacing: 0.14em;
+  color: var(--color-accent-strong);
+  font-size: 0.68rem;
+  font-weight: 850;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
 }
 
 .live-summary p {
-  margin: 0;
-  color: var(--color-primary);
-  line-height: 1.6;
+  color: var(--color-muted-strong);
+  line-height: 1.65;
 }
 
 .live-summary strong {
-  font-weight: 900;
+  color: var(--color-primary);
+  font-weight: 850;
 }
 
 .result-panel {
   display: grid;
-  gap: 16px;
-  padding: 24px;
-  border-radius: var(--radius-lg);
+  gap: 18px;
+  padding: clamp(22px, 3vw, 30px);
+  border: 1px solid rgba(214, 184, 134, 0.28);
+  border-radius: 4px;
   background:
-    radial-gradient(circle at top right, rgba(200, 155, 60, 0.22), transparent 18rem),
-    var(--color-primary);
-  color: #ffffff;
+    radial-gradient(circle at top right, rgba(183, 138, 82, 0.16), transparent 18rem),
+    linear-gradient(135deg, #14241f, #1b201d);
+  color: var(--color-surface);
+  box-shadow: var(--shadow-card);
 }
 
 .result-panel__top {
@@ -570,126 +681,142 @@ function clearHistory() {
 }
 
 .result-panel__label {
-  margin: 0;
-  color: rgba(255, 255, 255, 0.72);
-  font-size: 0.76rem;
-  font-weight: 900;
-  letter-spacing: 0.14em;
+  color: rgba(255, 252, 246, 0.68);
+  font-size: 0.68rem;
+  font-weight: 850;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
 }
 
 .result-panel__main {
-  font-size: clamp(2.8rem, 7vw, 5.2rem);
-  font-weight: 900;
-  line-height: 0.92;
-  letter-spacing: -0.07em;
+  color: var(--color-surface);
+  font-family: var(--font-display);
+  font-size: clamp(3rem, 6vw, 5.2rem);
+  font-weight: 500;
+  line-height: 0.94;
+  letter-spacing: -0.06em;
 }
 
 .result-panel__secondary {
-  color: rgba(255, 255, 255, 0.74);
-  font-size: 1.4rem;
-  font-weight: 800;
+  color: rgba(255, 252, 246, 0.72);
+  font-size: 1.15rem;
+  font-weight: 760;
 }
 
 .result-panel__details {
   display: grid;
-  gap: 12px;
+  gap: 0;
   margin: 8px 0 0;
+  border-top: 1px solid rgba(255, 252, 246, 0.14);
 }
 
 .result-panel__details div {
   display: grid;
-  gap: 4px;
-  padding-top: 12px;
-  border-top: 1px solid rgba(255, 255, 255, 0.16);
+  grid-template-columns: minmax(130px, 0.38fr) minmax(0, 1fr);
+  gap: 18px;
+  padding: 13px 0;
+  border-bottom: 1px solid rgba(255, 252, 246, 0.12);
 }
 
 .result-panel__details dt {
-  color: rgba(255, 255, 255, 0.62);
-  font-size: 0.78rem;
+  color: rgba(255, 252, 246, 0.54);
+  font-size: 0.7rem;
   font-weight: 800;
-  text-transform: uppercase;
-}
-
-.result-panel__details dd {
-  margin: 0;
-  color: #ffffff;
-  font-weight: 700;
-}
-
-.calculator-view__visual-section,
-.calculator-view__history-section {
-  margin-top: 48px;
-}
-
-.calculator-view__visual-header {
-  display: flex;
-  gap: 20px;
-  align-items: end;
-  justify-content: space-between;
-  margin-bottom: 20px;
-}
-
-.calculator-view__visual-label {
-  margin: 0 0 8px;
-  color: var(--color-accent);
-  font-size: 0.72rem;
-  font-weight: 900;
   letter-spacing: 0.14em;
   text-transform: uppercase;
 }
 
+.result-panel__details dd {
+  color: rgba(255, 252, 246, 0.92);
+  font-weight: 720;
+  line-height: 1.45;
+}
+
+.calculator-view__visual-section,
+.calculator-view__history-section {
+  position: relative;
+  z-index: 1;
+  margin-top: 64px;
+}
+
+.calculator-view__visual-header {
+  display: flex;
+  gap: 24px;
+  align-items: end;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  padding-bottom: 22px;
+  border-bottom: 1px solid rgba(20, 36, 31, 0.14);
+}
+
+.calculator-view__visual-label {
+  margin: 0 0 10px;
+  color: var(--color-accent-strong);
+  font-size: 0.72rem;
+  font-weight: 850;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
 .calculator-view__visual-title {
-  margin: 0;
   color: var(--color-primary);
-  font-size: clamp(1.7rem, 3vw, 2.4rem);
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 3vw, 3rem);
+  font-weight: 500;
   line-height: 1;
-  letter-spacing: -0.04em;
+  letter-spacing: -0.045em;
 }
 
 .calculator-view__visual-description {
   max-width: 620px;
-  margin: 12px 0 0;
-  color: var(--color-muted);
-  line-height: 1.6;
+  margin-top: 12px;
+  color: var(--color-muted-strong);
+  line-height: 1.7;
 }
 
 .calculator-view__visual-switch {
   display: inline-flex;
-  gap: 10px;
+  gap: 6px;
   align-items: center;
-  padding: 6px;
-  border: 1px solid rgba(22, 56, 50, 0.1);
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.72);
+  padding: 5px;
+  border: 1px solid rgba(20, 36, 31, 0.14);
+  border-radius: 6px;
+  background: rgba(255, 252, 246, 0.7);
   box-shadow: var(--shadow-card);
 }
 
 .calculator-view__visual-switch-button {
-  padding: 10px 16px;
-  border: 0;
-  border-radius: 999px;
+  min-height: 38px;
+  padding: 0 14px;
+  border: 1px solid transparent;
+  border-radius: 4px;
   background: transparent;
-  color: var(--color-primary);
+  color: var(--color-muted-strong);
   font: inherit;
-  font-weight: 800;
+  font-size: 0.72rem;
+  font-weight: 850;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
   cursor: pointer;
   transition:
     background 0.2s ease,
+    border-color 0.2s ease,
     color 0.2s ease,
     transform 0.2s ease;
 }
 
 .calculator-view__visual-switch-button:hover {
   transform: translateY(-1px);
+  color: var(--color-primary);
 }
 
 .calculator-view__visual-switch-button--active {
+  border-color: var(--color-primary);
   background: var(--color-primary);
-  color: #ffffff;
+  color: var(--color-surface);
 }
 
-@media (max-width: 900px) {
+@media (max-width: 980px) {
   .calculator-view {
     padding: 72px 0;
   }
@@ -698,13 +825,42 @@ function clearHistory() {
     grid-template-columns: 1fr;
   }
 
+  .calculator-view__content {
+    position: static;
+  }
+
   .calculator-view__visual-header {
     align-items: start;
     flex-direction: column;
   }
+}
+
+@media (max-width: 680px) {
+  .calculator-form__split {
+    grid-template-columns: 1fr;
+  }
+
+  .calculator-view__title {
+    font-size: clamp(2.55rem, 12vw, 4.1rem);
+  }
+
+  .template-info__top,
+  .result-panel__top {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .result-panel__details div {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
 
   .calculator-view__visual-switch {
-    flex-wrap: wrap;
+    width: 100%;
+  }
+
+  .calculator-view__visual-switch-button {
+    flex: 1;
   }
 }
 </style>
